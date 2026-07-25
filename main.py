@@ -73,12 +73,10 @@ def carregar_dados_e_gerar_html():
         # Estrutura adaptável e responsiva do Popup
         content_html = f"""
             <div style='width: 280px; max-width: 82vw; max-height: 75vh; overflow-y: auto; font-family: sans-serif; line-height: 1.4; color: #ffffff; background: #2c3e50; padding: 0; border-radius: 10px; box-shadow: 0 8px 20px rgba(0,0,0,0.4); position: relative; user-select: none; -webkit-user-select: none;'>
-                <!-- Cabeçalho Colorido -->
                 <div style='background:{cor_hex}; color:white; padding: 12px; padding-right: 45px; border-radius: 10px 10px 0 0;'>
                     <div style='font-size:15px; font-weight:bold; word-wrap: break-word;'>{cliente}</div>
                     <div style='font-size:11px; opacity:0.9;'>CNPJ: {cnpj} | Cód: {codigo_cli}</div>
                 </div>
-                <!-- Corpo do Card -->
                 <div style='padding: 10px 12px 12px 12px;'>
                     <div style='font-size:12px; padding-bottom: 8px; color: #ecf0f1;'>
                         <b>Região:</b> {row['Região (DF)']}<br>
@@ -98,8 +96,7 @@ def carregar_dados_e_gerar_html():
                         <div style='width:20px; color:{cor_hex}; flex-shrink: 0;'>{ICON_BASKET}</div>
                         <div><b>Comprou no Mês:</b> {comprou if comprou else 'Não'}<br><b>Cadastro:</b> {status_cadastral}</div>
                     </div>
-                    <!-- Link universal do Google Maps -->
-                    <a href='https://www.google.com/maps/dir/?api=1&destination={lat},{lng}' target='_blank' rel='noopener noreferrer'
+                    <a href='http://maps.google.com/maps?daddr={lat},{lng}' target='_blank' rel='noopener noreferrer'
                        style='display:block; background:#4285F4; color:white; text-align:center; padding:10px; border-radius:25px; text-decoration:none; font-weight:bold; font-size:13px;'>
                         VER TRAJETO GOOGLE MAPS
                     </a>
@@ -128,8 +125,15 @@ def carregar_dados_e_gerar_html():
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        
         <link rel="manifest" href="/static/manifest.json">
+        <link rel="icon" type="image/png" href="/static/icon.png">
+        <link rel="apple-touch-icon" href="/static/icon.png">
         <meta name="theme-color" content="#2c3e50">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="apple-mobile-web-app-title" content="Mapa Vendas">
+        
         <title>Mapa de Vendas</title>
         <script src="https://maps.googleapis.com/maps/api/js?key={GOOGLE_MAPS_API_KEY}"></script>
         <style>
@@ -267,7 +271,6 @@ def carregar_dados_e_gerar_html():
             <div id="menu-toggle" onclick="toggleMenu()"><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
             <div id="filter-menu">
                 
-                <!-- STATUS -->
                 <div class="filter-group">
                     <div class="filter-header" onclick="toggleAccordion(this)">
                         <span>STATUS:</span>
@@ -285,7 +288,6 @@ def carregar_dados_e_gerar_html():
                     </div>
                 </div>
 
-                <!-- SETOR -->
                 <div class="filter-group">
                     <div class="filter-header" onclick="toggleAccordion(this)">
                         <span>SETOR:</span>
@@ -300,7 +302,6 @@ def carregar_dados_e_gerar_html():
                     </div>
                 </div>
 
-                <!-- SEGMENTAÇÃO -->
                 <div class="filter-group">
                     <div class="filter-header" onclick="toggleAccordion(this)">
                         <span>SEGMENTAÇÃO:</span>
@@ -315,7 +316,6 @@ def carregar_dados_e_gerar_html():
                     </div>
                 </div>
 
-                <!-- REGIÃO DF -->
                 <div class="filter-group">
                     <div class="filter-header" onclick="toggleAccordion(this)">
                         <span>REGIÃO DF:</span>
