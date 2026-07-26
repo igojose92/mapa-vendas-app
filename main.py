@@ -126,6 +126,14 @@ def formatar_setor(valor):
     val_str = str(valor).split('.')[0].strip()
     return val_str.zfill(3) if val_str.isdigit() else val_str
 
+def encontrar_coluna(df, nomes_possiveis):
+    for col in df.columns:
+        col_clean = str(col).strip().lower()
+        for nome in nomes_possiveis:
+            if nome.lower() in col_clean:
+                return col
+    return None
+
 def carregar_dados_e_gerar_html():
     try:
         df = None
@@ -159,16 +167,17 @@ def carregar_dados_e_gerar_html():
         df = df.fillna('')
         df.columns = [str(c).strip() for c in df.columns]
 
-        if 'Setor' in df.columns:
-            df['Setor'] = df['Setor'].apply(formatar_setor)
+        # Identificação inteligente das colunas
+        col_setor = encontrar_coluna(df, ['setor'])
+        col_seg = encontrar_coluna(df, ['segmenta', 'segm', 'ramo', 'categoria'])
+        col_reg = encontrar_coluna(df, ['regiao', 'região', 'cidade', 'bairro', 'endereco', 'endereço', 'df'])
 
-        col_setor = 'Setor' if 'Setor' in df.columns else ''
-        col_seg = 'Segmentação' if 'Segmentação' in df.columns else ''
-        col_reg = 'Região (DF)' if 'Região (DF)' in df.columns else ''
+        if col_setor:
+            df[col_setor] = df[col_setor].apply(formatar_setor)
 
-        setores_unicos = sorted([str(s) for s in df[col_setor].unique() if str(s).strip() != '']) if col_setor else []
-        segmentacoes_unicas = sorted([str(s) for s in df[col_seg].unique() if str(s).strip() != '']) if col_seg else []
-        regioes_unicas = sorted([str(r) for r in df[col_reg].unique() if str(r).strip() != '']) if col_reg else []
+        setores_unicos = sorted([str(s).strip() for s in df[col_setor].unique() if str(s).strip() != '']) if col_setor else []
+        segmentacoes_unicas = sorted([str(s).strip() for s in df[col_seg].unique() if str(s).strip() != '']) if col_seg else []
+        regioes_unicas = sorted([str(r).strip() for r in df[col_reg].unique() if str(r).strip() != '']) if col_reg else []
 
         markers_list = []
         for _, row in df.iterrows():
@@ -184,8 +193,10 @@ def carregar_dados_e_gerar_html():
             cnpj = str(row.get('CNPJ', ''))
             status_cadastral = str(row.get('Status', '')).strip()
             comprou = str(row.get('Comprou no Mês', '')).strip()
-            setor_formatado = str(row.get('Setor', ''))
-            
+            setor_formatado = str(row.get(col_setor, '')) if col_setor else ''
+            segmentacao_val = str(row.get(col_seg, '')).strip() if col_seg else ''
+            regiao_val = str(row.get(col_reg, '')).strip() if col_reg else ''
+
             status_lower = status_cadastral.lower()
             comprou_lower = comprou.lower()
 
@@ -203,8 +214,8 @@ def carregar_dados_e_gerar_html():
                 status_categoria = "comprou_nao"
 
             codigo_cli = str(row.iloc[0])
-            search_tag = f"{cliente} {cnpj} {codigo_cli} {setor_formatado}".lower()
-            
+            search_tag = f"{cliente} {cnpj} {codigo_cli} {setor_formatado} {segmentacao_val} {regiao_val}".lower()
+
             content_html = f"""
                 <div style='width: 280px; max-width: 82vw; max-height: 75vh; overflow-y: auto; font-family: sans-serif; line-height: 1.4; color: #ffffff; background: #2c3e50; padding: 0; border-radius: 10px; box-shadow: 0 8px 20px rgba(0,0,0,0.4); position: relative; user-select: none; -webkit-user-select: none;'>
                     <div style='background:{cor_hex}; color:white; padding: 12px; padding-right: 45px; border-radius: 10px 10px 0 0;'>
@@ -213,8 +224,8 @@ def carregar_dados_e_gerar_html():
                     </div>
                     <div style='padding: 10px 12px 12px 12px;'>
                         <div style='font-size:12px; padding-bottom: 8px; color: #ecf0f1;'>
-                            <b>Região:</b> {row.get('Região (DF)', '')}<br>
-                            <b>Segmentação:</b> {row.get('Segmentação', '')}<br>
+                            <b>Região:</b> {regiao_val}<br>
+                            <b>Segmentação:</b> {segmentacao_val}<br>
                             <b>Setor:</b> {setor_formatado}<br>
                             <b>Representante:</b> {row.get('Representante', '')}<br>
                             <b>Dia de Visita:</b> {row.get('Dia de Visita', '')}<br>
@@ -242,13 +253,13 @@ def carregar_dados_e_gerar_html():
                 "nome": cliente,
                 "lat": lat,
                 "lng": lng,
-                "cor_hex": cor_hex, 
+                "cor_hex": cor_hex,
                 "search": search_tag,
                 "content": content_html,
                 "status_cat": status_categoria,
                 "setor": setor_formatado,
-                "segmentacao": str(row.get('Segmentação', '')),
-                "regiao": str(row.get('Região (DF)', ''))
+                "segmentacao": segmentacao_val,
+                "regiao": regiao_val
             })
 
         markers_json = json.dumps(markers_list)
@@ -256,17 +267,17 @@ def carregar_dados_e_gerar_html():
         checkboxes_setor = "".join([
             f'<label class="chk-item"><input type="checkbox" class="chk-setor" value="{s}" checked onchange="applyFilters()"> {s}</label>'
             for s in setores_unicos
-        ])
-        
+        ]) if setores_unicos else '<div style="font-size:12px; color:#bdc3c7;">Nenhum setor encontrado</div>'
+
         checkboxes_seg = "".join([
             f'<label class="chk-item"><input type="checkbox" class="chk-seg" value="{s}" checked onchange="applyFilters()"> {s}</label>'
             for s in segmentacoes_unicas
-        ])
-        
+        ]) if segmentacoes_unicas else '<div style="font-size:12px; color:#bdc3c7;">Nenhuma segmentação encontrada</div>'
+
         checkboxes_reg = "".join([
             f'<label class="chk-item"><input type="checkbox" class="chk-reg" value="{r}" checked onchange="applyFilters()"> {r}</label>'
             for r in regioes_unicas
-        ])
+        ]) if regioes_unicas else '<div style="font-size:12px; color:#bdc3c7;">Nenhuma região encontrada</div>'
 
         html_content = f"""
         <!DOCTYPE html>
@@ -631,7 +642,7 @@ def carregar_dados_e_gerar_html():
                 .btn-mini {{ background: #34495e; color: #ecf0f1; border: none; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; cursor: pointer; }}
                 .btn-mini:hover {{ background: #4285F4; color: #ffffff; }}
                 
-                .chk-list {{ display: flex; flex-direction: column; gap: 6px; padding-left: 2px; }}
+                .chk-list {{ display: flex; flex-direction: column; gap: 6px; padding-left: 2px; max-height: 180px; overflow-y: auto; }}
                 .chk-item {{ display: flex; align-items: center; gap: 8px; font-size: 13px; color: #dcdde1; cursor: pointer; user-select: none; }}
                 .chk-item input[type="checkbox"] {{ width: 16px; height: 16px; accent-color: #4285F4; cursor: pointer; }}
 
