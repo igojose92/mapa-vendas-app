@@ -1034,4 +1034,6 @@ def carregar_dados_e_gerar_html():
 
 @app.get("/", response_class=HTMLResponse)
 def index():
+    @app.get("/", response_class=HTMLResponse)
+def index():
     return carregar_dados_e_gerar_html()
