@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException, Form
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 import pandas as pd
 import json
@@ -31,11 +31,11 @@ USERS_DB = {
 # Armazenamento temporário dos códigos de recuperação
 RESET_CODES = {}
 
-# Configurações de SMTP para envio de e-mail (Opcional se desejar envio real via e-mail)
+# Configurações de SMTP para envio de e-mail
 SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.gmail.com")
 SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
-SMTP_USER = os.getenv("SMTP_USER", "")  # Seu e-mail remetente
-SMTP_PASS = os.getenv("SMTP_PASS", "")  # Sua Senha de App do Google
+SMTP_USER = os.getenv("SMTP_USER", "")
+SMTP_PASS = os.getenv("SMTP_PASS", "")
 
 def validar_regras_senha(senha: str) -> str:
     if len(senha) < 6:
@@ -154,15 +154,36 @@ def formatar_setor(valor):
     return val_str.zfill(3) if val_str.isdigit() else val_str
 
 def carregar_dados_e_gerar_html():
-    caminho_arquivo = os.path.join("dados", "clientes_vendas_teste.xlsx")
-    
-    if not os.path.exists(caminho_arquivo):
-        return f"<h1>Erro: O arquivo Excel não foi encontrado em '{caminho_arquivo}'. Verifique a pasta 'dados'.</h1>"
+    df = None
+    erros = []
 
-    try:
-        df = pd.read_excel(caminho_arquivo, dtype={'Setor': str})
-    except Exception as e:
-        return f"<h1>Erro ao ler a planilha Excel: {e}</h1>"
+    # Procura arquivos na pasta dados
+    for nome in os.listdir("dados"):
+        if "clientes_vendas_teste" in nome:
+            caminho_completo = os.path.join("dados", nome)
+            
+            # Tenta ler como CSV (seja .csv ou .xlsx disfarçado de CSV)
+            try:
+                df = pd.read_csv(caminho_completo, dtype={'Setor': str}, sep=None, engine='python', encoding='utf-8-sig')
+                break
+            except Exception as e_csv:
+                erros.append(f"Erro CSV: {e_csv}")
+            
+            try:
+                df = pd.read_csv(caminho_completo, dtype={'Setor': str}, sep=None, engine='python', encoding='latin1')
+                break
+            except Exception as e_latin:
+                erros.append(f"Erro Latin1: {e_latin}")
+                
+            # Se for XLSX legítimo
+            try:
+                df = pd.read_excel(caminho_completo, engine='openpyxl', dtype={'Setor': str})
+                break
+            except Exception as e_excel:
+                erros.append(f"Erro Excel: {e_excel}")
+
+    if df is None:
+        return f"<h1>Erro ao carregar dados</h1><p>Não foi possível ler o arquivo em 'dados/'. Erros:<br>{'<br>'.join(erros)}</p>"
 
     df = df.fillna('')
     df['Setor'] = df['Setor'].apply(formatar_setor)
@@ -863,7 +884,7 @@ def carregar_dados_e_gerar_html():
             }}
 
             function handleSearch(e) {{
-                var query = e.target.value.toLowerCase().strip ? e.target.value.toLowerCase().strip() : e.target.value.toLowerCase().trim();
+                var query = e.target.value.toLowerCase().trim();
                 var clearBtn = document.getElementById('clear-search');
                 var suggBox = document.getElementById('suggestions');
 
