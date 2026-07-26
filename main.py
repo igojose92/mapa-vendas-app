@@ -206,12 +206,10 @@ def carregar_dados_e_gerar_html():
         
         content_html = f"""
             <div style='width: 280px; max-width: 82vw; max-height: 75vh; overflow-y: auto; font-family: sans-serif; line-height: 1.4; color: #ffffff; background: #2c3e50; padding: 0; border-radius: 10px; box-shadow: 0 8px 20px rgba(0,0,0,0.4); position: relative; user-select: none; -webkit-user-select: none;'>
-                <!-- Cabeçalho Colorido -->
                 <div style='background:{cor_hex}; color:white; padding: 12px; padding-right: 45px; border-radius: 10px 10px 0 0;'>
                     <div style='font-size:15px; font-weight:bold; word-wrap: break-word;'>{cliente}</div>
                     <div style='font-size:11px; opacity:0.9;'>CNPJ: {cnpj} | Cód: {codigo_cli}</div>
                 </div>
-                <!-- Corpo do Card -->
                 <div style='padding: 10px 12px 12px 12px;'>
                     <div style='font-size:12px; padding-bottom: 8px; color: #ecf0f1;'>
                         <b>Região:</b> {row['Região (DF)']}<br>
@@ -231,7 +229,6 @@ def carregar_dados_e_gerar_html():
                         <div style='width:20px; color:{cor_hex}; flex-shrink: 0;'>{ICON_BASKET}</div>
                         <div><b>Comprou no Mês:</b> {comprou if comprou else 'Não'}<br><b>Cadastro:</b> {status_cadastral}</div>
                     </div>
-                    <!-- Link universal do Google Maps -->
                     <a href='http://maps.google.com/maps?daddr={lat},{lng}' target='_blank' rel='noopener noreferrer'
                        style='display:block; background:#4285F4; color:white; text-align:center; padding:10px; border-radius:25px; text-decoration:none; font-weight:bold; font-size:13px;'>
                        VER TRAJETO GOOGLE MAPS
@@ -265,8 +262,6 @@ def carregar_dados_e_gerar_html():
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        
-        <!-- ÍCONES E SUPORTE A PWA / TELA INICIAL -->
         <link rel="manifest" href="/static/manifest.json">
         <link rel="icon" type="image/png" href="/static/icon.png">
         <link rel="apple-touch-icon" href="/static/icon.png">
@@ -302,15 +297,12 @@ def carregar_dados_e_gerar_html():
                 overflow: hidden; 
                 user-select: none;
                 -webkit-user-select: none;
-                -moz-user-select: none;
-                -ms-user-select: none;
             }}
             
             *:focus {{
                 outline: none !important;
             }}
 
-            /* TELA DE AUTENTICAÇÃO / LOGIN OVERLAY */
             #auth-overlay {{
                 position: fixed;
                 top: 0;
@@ -405,7 +397,6 @@ def carregar_dados_e_gerar_html():
 
             #map {{ height: 100%; width: 100%; }}
             
-            /* Ajustes da InfoWindow */
             .gm-style .gm-style-iw-c {{
                 padding: 0 !important;
                 background-color: transparent !important;
@@ -423,7 +414,6 @@ def carregar_dados_e_gerar_html():
                 background-color: #2c3e50 !important;
             }}
 
-            /* Botão de fechar (X) */
             .gm-ui-hover-effect {{ 
                 position: absolute !important;
                 top: 12px !important; 
@@ -446,7 +436,6 @@ def carregar_dados_e_gerar_html():
                 height: 14px !important;
             }}
 
-            /* Barra de busca responsiva */
             #search-wrapper {{ 
                 position: absolute; 
                 top: 15px; 
@@ -487,13 +476,11 @@ def carregar_dados_e_gerar_html():
             .legend-row {{ display: flex; align-items: center; margin-bottom: 5px; font-weight: 600; gap: 8px; }}
             .basket-svg {{ width: 18px; height: 18px; }}
             
-            /* Botão do Perfil e Botão de Filtro */
             #profile-btn {{ position: absolute; left: 15px; top: 15px; z-index: 20; width: 44px; height: 44px; border-radius: 50%; overflow: hidden; cursor: pointer; border: 2px solid #4285F4; box-shadow: 0 4px 10px rgba(0,0,0,0.3); background: #34495e; display: flex; align-items: center; justify-content: center; }}
             #profile-btn img {{ width: 100%; height: 100%; object-fit: cover; }}
             
             #filter-toggle-btn {{ position: absolute; left: 15px; top: 70px; z-index: 20; width: 42px; height: 42px; border-radius: 50%; background: var(--bg-primary); color: var(--text-color); display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid var(--border-color); box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 18px; }}
 
-            /* Menu de Perfil */
             #profile-menu {{ position: absolute; left: 15px; top: 68px; background: var(--bg-primary); padding: 15px; border-radius: 15px; color: var(--text-color); border: 1px solid var(--border-color); display: none; width: 240px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 25; }}
             .profile-header {{ display: flex; flex-direction: column; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; }}
             .profile-img-wrapper {{ width: 70px; height: 70px; border-radius: 50%; overflow: hidden; border: 2px solid #4285F4; cursor: pointer; position: relative; margin-bottom: 8px; background: #34495e; display: flex; align-items: center; justify-content: center; }}
@@ -507,13 +494,11 @@ def carregar_dados_e_gerar_html():
             .theme-btn {{ background: var(--bg-secondary); color: var(--text-color); border: 1px solid var(--border-color); padding: 8px 10px; border-radius: 8px; cursor: pointer; font-size: 12px; text-align: left; display: flex; align-items: center; justify-content: space-between; }}
             .theme-btn.active {{ border-color: #4285F4; font-weight: bold; background: #4285F4; color: white; }}
 
-            /* Painel de Filtros */
             #filter-menu {{ position: absolute; left: 15px; top: 125px; background: var(--bg-primary); padding: 15px; border-radius: 15px; color: var(--text-color); border: 1px solid var(--border-color); display: none; width: 250px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 25; }}
             .filter-group {{ margin-bottom: 10px; }}
             .filter-group label {{ display: block; font-size: 11px; font-weight: bold; margin-bottom: 4px; text-transform: uppercase; opacity: 0.8; }}
             .filter-select {{ width: 100%; padding: 8px; border-radius: 8px; background: var(--bg-secondary); color: var(--text-color); border: 1px solid var(--border-color); font-size: 12px; }}
 
-            /* Modal Seleção de Foto */
             #photo-source-modal {{ display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 100; align-items: center; justify-content: center; }}
             .modal-box {{ background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; width: 80%; max-width: 280px; text-align: center; color: var(--text-color); }}
             .modal-title {{ font-weight: bold; font-size: 16px; margin-bottom: 15px; }}
@@ -523,9 +508,8 @@ def carregar_dados_e_gerar_html():
     </head>
     <body>
 
-        <!-- ESTRUTURA DE LOGIN / REDEFINIÇÃO DE SENHA -->
+        <!-- OVERLAY DE LOGIN -->
         <div id="auth-overlay">
-            <!-- Form 1: Login -->
             <div id="card-login" class="auth-card">
                 <h2>Mapa de Vendas</h2>
                 <div class="auth-field">
@@ -541,7 +525,6 @@ def carregar_dados_e_gerar_html():
                 <span class="auth-link" onclick="mostrarTela('card-forgot')">Esqueceu a senha?</span>
             </div>
 
-            <!-- Form 2: Atualização Obrigatória (Primeiro Acesso) -->
             <div id="card-first-change" class="auth-card" style="display:none;">
                 <h2>Atualizar Senha</h2>
                 <p style="font-size:12px; opacity:0.8; text-align:center;">Este é seu primeiro acesso. Atualize sua senha inicial para continuar.</p>
@@ -553,7 +536,6 @@ def carregar_dados_e_gerar_html():
                 <div id="first-err" class="auth-error"></div>
             </div>
 
-            <!-- Form 3: Esqueceu a Senha -->
             <div id="card-forgot" class="auth-card" style="display:none;">
                 <h2>Recuperar Senha</h2>
                 <div class="auth-field">
@@ -565,7 +547,6 @@ def carregar_dados_e_gerar_html():
                 <span class="auth-link" onclick="mostrarTela('card-login')">Voltar ao Login</span>
             </div>
 
-            <!-- Form 4: Redefinir com Código -->
             <div id="card-reset" class="auth-card" style="display:none;">
                 <h2>Criar Nova Senha</h2>
                 <div class="auth-field">
@@ -671,361 +652,335 @@ def carregar_dados_e_gerar_html():
         <div id="photo-source-modal">
             <div class="modal-box">
                 <div class="modal-title">Alterar Foto de Perfil</div>
-                <button class="modal-btn" onclick="triggerCamera()">📷 Tirar Foto</button>
-                <button class="modal-btn" onclick="triggerGallery()">🖼️ Galeria</button>
+                <button class="modal-btn" onclick="triggerFileInput('camera')">📷 Tirar Foto</button>
+                <button class="modal-btn" onclick="triggerFileInput('gallery')">🖼️ Escolher da Galeria</button>
                 <button class="modal-btn cancel" onclick="closePhotoModal()">Cancelar</button>
             </div>
         </div>
 
-        <input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none" onchange="handleImageUpload(this)">
-        <input type="file" id="gallery-input" accept="image/*" style="display:none" onchange="handleImageUpload(this)">
+        <input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none;" onchange="handleImageUpload(event)">
+        <input type="file" id="gallery-input" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
 
         <script>
-            let map;
-            let markersData = {markers_json};
-            let googleMarkers = [];
-            let activeInfoWindow = null;
-            let loggedEmail = "";
-            let tempPasswordUsed = "";
+            var map;
+            var markersData = {markers_json};
+            var mapMarkers = [];
+            var currentInfoWindow = null;
+            var loggedUserEmail = "";
+
+            function initMap() {{
+                var centro = {{ lat: -15.7942, lng: -47.8822 }};
+                map = new google.maps.Map(document.getElementById('map'), {{
+                    zoom: 11,
+                    center: centro,
+                    disableDefaultUI: true,
+                    zoomControl: true
+                }});
+
+                markersData.forEach(function(item) {{
+                    var svgIcon = {{
+                        path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
+                        fillColor: item.cor_hex,
+                        fillOpacity: 1,
+                        strokeWeight: 1,
+                        strokeColor: "#ffffff",
+                        scale: 1.8,
+                        anchor: new google.maps.Point(12, 24)
+                    }};
+
+                    var marker = new google.maps.Marker({{
+                        position: {{ lat: item.lat, lng: item.lng }},
+                        map: map,
+                        title: item.nome,
+                        icon: svgIcon
+                    }});
+
+                    var infowindow = new google.maps.InfoWindow({{ content: item.content }});
+
+                    marker.addListener('click', function() {{
+                        if (currentInfoWindow) currentInfoWindow.close();
+                        infowindow.open(map, marker);
+                        currentInfoWindow = infowindow;
+                    }});
+
+                    mapMarkers.push({{
+                        marker: marker,
+                        data: item
+                    }});
+                }});
+
+                checkSession();
+            }}
+
+            window.onload = initMap;
+
+            function checkSession() {{
+                var savedEmail = localStorage.getItem('mapa_user_email');
+                if (savedEmail) {{
+                    loggedUserEmail = savedEmail;
+                    document.getElementById('auth-overlay').style.display = 'none';
+                    loadUserProfile();
+                }} else {{
+                    document.getElementById('auth-overlay').style.display = 'flex';
+                }}
+            }}
 
             function mostrarTela(cardId) {{
-                document.getElementById('card-login').style.display = 'none';
-                document.getElementById('card-first-change').style.display = 'none';
-                document.getElementById('card-forgot').style.display = 'none';
-                document.getElementById('card-reset').style.display = 'none';
+                document.querySelectorAll('.auth-card').forEach(c => c.style.display = 'none');
                 document.getElementById(cardId).style.display = 'block';
             }}
 
-            function mostrarErro(errId, msg) {{
-                const el = document.getElementById(errId);
-                el.innerText = msg;
-                el.style.display = msg ? 'block' : 'none';
+            function mostrarErro(elementId, msg) {{
+                var errDiv = document.getElementById(elementId);
+                errDiv.innerText = msg;
+                errDiv.style.display = 'block';
             }}
 
             async function executarLogin() {{
-                mostrarErro('login-err', '');
-                const email = document.getElementById('login-email').value;
-                const pass = document.getElementById('login-pass').value;
+                var email = document.getElementById('login-email').value;
+                var pass = document.getElementById('login-pass').value;
+                document.getElementById('login-err').style.display = 'none';
 
-                if (!email || !pass) {{
-                    mostrarErro('login-err', 'Preencha o e-mail e a senha.');
-                    return;
-                }}
-
-                const formData = new FormData();
+                var formData = new FormData();
                 formData.append('email', email);
                 formData.append('password', pass);
 
                 try {{
-                    const res = await fetch('/api/login', {{ method: 'POST', body: formData }});
-                    const data = await res.json();
-
+                    var res = await fetch('/api/login', {{ method: 'POST', body: formData }});
+                    var data = await res.json();
+                    
                     if (!res.ok) {{
-                        mostrarErro('login-err', data.detail || 'Erro ao efetuar login.');
+                        mostrarErro('login-err', data.detail || 'Erro ao realizar login.');
                         return;
                     }}
 
-                    loggedEmail = data.email;
-                    tempPasswordUsed = pass;
-
+                    loggedUserEmail = data.email;
                     if (data.first_login) {{
                         mostrarTela('card-first-change');
                     }} else {{
+                        localStorage.setItem('mapa_user_email', loggedUserEmail);
                         document.getElementById('auth-overlay').style.display = 'none';
+                        loadUserProfile();
                     }}
                 }} catch (e) {{
-                    mostrarErro('login-err', 'Falha na conexão com o servidor.');
+                    mostrarErro('login-err', 'Falha na comunicação com o servidor.');
                 }}
             }}
 
             async function executarTrocaPrimeiroAcesso() {{
-                mostrarErro('first-err', '');
-                const newPass = document.getElementById('first-new-pass').value;
+                var newPass = document.getElementById('first-new-pass').value;
+                document.getElementById('first-err').style.display = 'none';
 
-                const formData = new FormData();
-                formData.append('email', loggedEmail);
-                formData.append('old_password', tempPasswordUsed);
+                var formData = new FormData();
+                formData.append('email', loggedUserEmail);
+                formData.append('old_password', '{DEFAULT_PASS}');
                 formData.append('new_password', newPass);
 
                 try {{
-                    const res = await fetch('/api/change-password', {{ method: 'POST', body: formData }});
-                    const data = await res.json();
+                    var res = await fetch('/api/change-password', {{ method: 'POST', body: formData }});
+                    var data = await res.json();
 
                     if (!res.ok) {{
-                        mostrarErro('first-err', data.detail || 'Erro ao alterar a senha.');
+                        mostrarErro('first-err', data.detail || 'Erro ao alterar senha.');
                         return;
                     }}
 
-                    alert('Senha atualizada com sucesso!');
+                    localStorage.setItem('mapa_user_email', loggedUserEmail);
                     document.getElementById('auth-overlay').style.display = 'none';
+                    loadUserProfile();
                 }} catch (e) {{
-                    mostrarErro('first-err', 'Falha na conexão com o servidor.');
+                    mostrarErro('first-err', 'Falha ao conectar com o servidor.');
                 }}
             }}
 
             async function executarEsqueceuSenha() {{
-                mostrarErro('forgot-err', '');
-                const email = document.getElementById('forgot-email').value;
+                var email = document.getElementById('forgot-email').value;
+                document.getElementById('forgot-err').style.display = 'none';
 
-                if (!email) {{
-                    mostrarErro('forgot-err', 'Digite seu e-mail.');
-                    return;
-                }}
-
-                const formData = new FormData();
+                var formData = new FormData();
                 formData.append('email', email);
 
                 try {{
-                    const res = await fetch('/api/forgot-password', {{ method: 'POST', body: formData }});
-                    const data = await res.json();
+                    var res = await fetch('/api/forgot-password', {{ method: 'POST', body: formData }});
+                    var data = await res.json();
 
                     if (!res.ok) {{
                         mostrarErro('forgot-err', data.detail || 'Erro ao solicitar código.');
                         return;
                     }}
 
-                    loggedEmail = email;
-                    alert('Código enviado com sucesso!');
+                    loggedUserEmail = email;
                     mostrarTela('card-reset');
                 }} catch (e) {{
-                    mostrarErro('forgot-err', 'Falha na conexão com o servidor.');
+                    mostrarErro('forgot-err', 'Erro na requisição.');
                 }}
             }}
 
             async function executarRedefinicaoSenha() {{
-                mostrarErro('reset-err', '');
-                const code = document.getElementById('reset-code').value;
-                const newPass = document.getElementById('reset-new-pass').value;
+                var code = document.getElementById('reset-code').value;
+                var newPass = document.getElementById('reset-new-pass').value;
+                document.getElementById('reset-err').style.display = 'none';
 
-                if (!code || !newPass) {{
-                    mostrarErro('reset-err', 'Preencha o código e a nova senha.');
-                    return;
-                }}
-
-                const formData = new FormData();
-                formData.append('email', loggedEmail);
+                var formData = new FormData();
+                formData.append('email', loggedUserEmail);
                 formData.append('code', code);
                 formData.append('new_password', newPass);
 
                 try {{
-                    const res = await fetch('/api/reset-password', {{ method: 'POST', body: formData }});
-                    const data = await res.json();
+                    var res = await fetch('/api/reset-password', {{ method: 'POST', body: formData }});
+                    var data = await res.json();
 
                     if (!res.ok) {{
-                        mostrarErro('reset-err', data.detail || 'Erro ao redefinir a senha.');
+                        mostrarErro('reset-err', data.detail || 'Erro ao redefinir.');
                         return;
                     }}
 
-                    alert('Senha redefinida com sucesso! Faça login com sua nova senha.');
+                    alert('Senha redefinida com sucesso!');
                     mostrarTela('card-login');
                 }} catch (e) {{
-                    mostrarErro('reset-err', 'Falha na conexão com o servidor.');
+                    mostrarErro('reset-err', 'Erro ao conectar.');
                 }}
-            }}
-
-            function initMap() {{
-                const initialPos = markersData.length > 0 
-                    ? {{ lat: markersData[0].lat, lng: markersData[0].lng }} 
-                    : {{ lat: -15.793889, lng: -47.882778 }};
-
-                map = new google.maps.Map(document.getElementById("map"), {{
-                    center: initialPos,
-                    zoom: 12,
-                    disableDefaultUI: true,
-                    zoomControl: true
-                }});
-
-                renderMarkers(markersData);
-                loadProfileData();
-                loadTheme();
-            }}
-
-            function renderMarkers(data) {{
-                googleMarkers.forEach(m => m.setMap(null));
-                googleMarkers = [];
-
-                data.forEach(item => {{
-                    const marker = new google.maps.Marker({{
-                        position: {{ lat: item.lat, lng: item.lng }},
-                        map: map,
-                        title: item.nome,
-                        icon: {{
-                            path: google.maps.SymbolPath.CIRCLE,
-                            scale: 8,
-                            fillColor: item.cor_hex,
-                            fillOpacity: 0.9,
-                            strokeWeight: 2,
-                            strokeColor: "#ffffff"
-                        }}
-                    }});
-
-                    const infowindow = new google.maps.InfoWindow({{
-                        content: item.content
-                    }});
-
-                    marker.addListener("click", () => {{
-                        if (activeInfoWindow) activeInfoWindow.close();
-                        infowindow.open(map, marker);
-                        activeInfoWindow = infowindow;
-                    }});
-
-                    marker.itemData = item;
-                    googleMarkers.push(marker);
-                }});
             }}
 
             function applyFilters() {{
-                const statusVal = document.getElementById("filter-status").value;
-                const setorVal = document.getElementById("filter-setor").value;
-                const segVal = document.getElementById("filter-segmentacao").value;
-                const regVal = document.getElementById("filter-regiao").value;
+                var status = document.getElementById('filter-status').value;
+                var setor = document.getElementById('filter-setor').value;
+                var seg = document.getElementById('filter-segmentacao').value;
+                var reg = document.getElementById('filter-regiao').value;
 
-                googleMarkers.forEach(marker => {{
-                    const d = marker.itemData;
-                    let match = true;
+                mapMarkers.forEach(function(m) {{
+                    var matchStatus = !status || m.data.status_cat === status;
+                    var matchSetor = !setor || m.data.setor === setor;
+                    var matchSeg = !seg || m.data.segmentacao === seg;
+                    var matchReg = !reg || m.data.regiao === reg;
 
-                    if (statusVal && d.status_cat !== statusVal) match = false;
-                    if (setorVal && d.setor !== setorVal) match = false;
-                    if (segVal && d.segmentacao !== segVal) match = false;
-                    if (regVal && d.regiao !== regVal) match = false;
-
-                    marker.setVisible(match);
+                    if (matchStatus && matchSetor && matchSeg && matchReg) {{
+                        m.marker.setVisible(true);
+                    }} else {{
+                        m.marker.setVisible(false);
+                    }}
                 }});
             }}
 
-            function handleSearch(event) {{
-                const query = event.target.value.toLowerCase().trim();
-                const clearBtn = document.getElementById("clear-search");
-                const suggestionsBox = document.getElementById("suggestions");
+            function handleSearch(e) {{
+                var query = e.target.value.toLowerCase().strip ? e.target.value.toLowerCase().strip() : e.target.value.toLowerCase().trim();
+                var clearBtn = document.getElementById('clear-search');
+                var suggBox = document.getElementById('suggestions');
 
                 if (query.length > 0) {{
-                    clearBtn.style.display = "block";
+                    clearBtn.style.display = 'block';
                 }} else {{
-                    clearBtn.style.display = "none";
-                    suggestionsBox.style.display = "none";
+                    clearBtn.style.display = 'none';
+                    suggBox.style.display = 'none';
                     return;
                 }}
 
-                const matches = markersData.filter(d => d.search.includes(query)).slice(0, 5);
-
+                var matches = mapMarkers.filter(m => m.data.search.includes(query)).slice(0, 5);
+                
                 if (matches.length > 0) {{
-                    suggestionsBox.innerHTML = matches.map(m => 
-                        `<div class="suggestion-item" onclick="selectSuggestion(${{m.lat}}, ${{m.lng}}, '${{m.nome.replace(/'/g, "\\'")}}')">${{m.nome}}</div>`
-                    ).join("");
-                    suggestionsBox.style.display = "block";
+                    suggBox.innerHTML = '';
+                    matches.forEach(m => {{
+                        var div = document.createElement('div');
+                        div.className = 'suggestion-item';
+                        div.innerText = m.data.nome + " (" + m.data.setor + ")";
+                        div.onclick = function() {{
+                            map.setCenter(m.marker.getPosition());
+                            map.setZoom(16);
+                            google.maps.event.trigger(m.marker, 'click');
+                            suggBox.style.display = 'none';
+                        }};
+                        suggBox.appendChild(div);
+                    }});
+                    suggBox.style.display = 'block';
                 }} else {{
-                    suggestionsBox.style.display = "none";
-                }}
-            }}
-
-            function selectSuggestion(lat, lng, name) {{
-                map.setCenter({{ lat, lng }});
-                map.setZoom(16);
-                document.getElementById("suggestions").style.display = "none";
-
-                const targetMarker = googleMarkers.find(m => m.itemData.lat === lat && m.itemData.lng === lng);
-                if (targetMarker) {{
-                    google.maps.event.trigger(targetMarker, 'click');
+                    suggBox.style.display = 'none';
                 }}
             }}
 
             function clearSearch() {{
-                document.getElementById("search-input").value = "";
-                document.getElementById("clear-search").style.display = "none";
-                document.getElementById("suggestions").style.display = "none";
-            }}
-
-            function toggleProfileMenu() {{
-                const menu = document.getElementById("profile-menu");
-                const filterMenu = document.getElementById("filter-menu");
-                filterMenu.style.display = "none";
-                menu.style.display = (menu.style.display === "block") ? "none" : "block";
-            }}
-
-            function toggleFilterMenu() {{
-                const menu = document.getElementById("filter-menu");
-                const profileMenu = document.getElementById("profile-menu");
-                profileMenu.style.display = "none";
-                menu.style.display = (menu.style.display === "block") ? "none" : "block";
+                document.getElementById('search-input').value = '';
+                document.getElementById('clear-search').style.display = 'none';
+                document.getElementById('suggestions').style.display = 'none';
             }}
 
             function toggleLegend() {{
-                const leg = document.getElementById("legend");
-                leg.style.display = (leg.style.display === "block") ? "none" : "block";
+                var leg = document.getElementById('legend');
+                leg.style.display = leg.style.display === 'block' ? 'none' : 'block';
             }}
 
-            function openPhotoModal() {{
-                document.getElementById("photo-source-modal").style.display = "flex";
+            function toggleProfileMenu() {{
+                var pm = document.getElementById('profile-menu');
+                var fm = document.getElementById('filter-menu');
+                fm.style.display = 'none';
+                pm.style.display = pm.style.display === 'block' ? 'none' : 'block';
             }}
 
-            function closePhotoModal() {{
-                document.getElementById("photo-source-modal").style.display = "none";
+            function toggleFilterMenu() {{
+                var fm = document.getElementById('filter-menu');
+                var pm = document.getElementById('profile-menu');
+                pm.style.display = 'none';
+                fm.style.display = fm.style.display === 'block' ? 'none' : 'block';
             }}
 
-            function triggerCamera() {{
+            function openPhotoModal() {{ document.getElementById('photo-source-modal').style.display = 'flex'; }}
+            function closePhotoModal() {{ document.getElementById('photo-source-modal').style.display = 'none'; }}
+
+            function triggerFileInput(type) {{
                 closePhotoModal();
-                document.getElementById("camera-input").click();
+                if (type === 'camera') document.getElementById('camera-input').click();
+                else document.getElementById('gallery-input').click();
             }}
 
-            function triggerGallery() {{
-                closePhotoModal();
-                document.getElementById("gallery-input").click();
-            }}
-
-            function handleImageUpload(input) {{
-                if (input.files && input.files[0]) {{
-                    const reader = new FileReader();
+            function handleImageUpload(evt) {{
+                var file = evt.target.files[0];
+                if (file) {{
+                    var reader = new FileReader();
                     reader.onload = function(e) {{
-                        const imgData = e.target.result;
-                        document.getElementById("avatar-btn-img").src = imgData;
-                        document.getElementById("avatar-menu-img").src = imgData;
-                        localStorage.setItem("user_profile_img", imgData);
+                        var imgData = e.target.result;
+                        document.getElementById('avatar-btn-img').src = imgData;
+                        document.getElementById('avatar-menu-img').src = imgData;
+                        localStorage.setItem('user_avatar_' + loggedUserEmail, imgData);
                     }};
-                    reader.readAsDataURL(input.files[0]);
+                    reader.readAsDataURL(file);
                 }}
             }}
 
             function editName() {{
-                const current = document.getElementById("user-name-display").innerText;
-                const newName = prompt("Digite seu nome:", current);
-                if (newName && newName.trim() !== "") {{
-                    document.getElementById("user-name-display").innerText = newName.trim();
-                    localStorage.setItem("user_profile_name", newName.trim());
+                var nameDisplay = document.getElementById('user-name-display');
+                var currentName = nameDisplay.innerText;
+                var newName = prompt('Digite seu nome:', currentName);
+                if (newName && newName.trim() !== '') {{
+                    nameDisplay.innerText = newName.trim();
+                    localStorage.setItem('user_name_' + loggedUserEmail, newName.trim());
                 }}
             }}
 
-            function loadProfileData() {{
-                const savedImg = localStorage.getItem("user_profile_img");
-                const savedName = localStorage.getItem("user_profile_name");
+            function loadUserProfile() {{
+                var savedName = localStorage.getItem('user_name_' + loggedUserEmail);
+                if (savedName) document.getElementById('user-name-display').innerText = savedName;
 
-                if (savedImg) {{
-                    document.getElementById("avatar-btn-img").src = savedImg;
-                    document.getElementById("avatar-menu-img").src = savedImg;
+                var savedAvatar = localStorage.getItem('user_avatar_' + loggedUserEmail);
+                if (savedAvatar) {{
+                    document.getElementById('avatar-btn-img').src = savedAvatar;
+                    document.getElementById('avatar-menu-img').src = savedAvatar;
                 }}
-                if (savedName) {{
-                    document.getElementById("user-name-display").innerText = savedName;
-                }}
+
+                var savedTheme = localStorage.getItem('user_theme') || 'dark';
+                setTheme(savedTheme);
             }}
 
             function setTheme(theme) {{
                 if (theme === 'light') {{
-                    document.body.classList.add("light-theme");
-                    document.getElementById("btn-theme-light").classList.add("active");
-                    document.getElementById("btn-theme-dark").classList.remove("active");
+                    document.body.classList.add('light-theme');
+                    document.getElementById('btn-theme-light').classList.add('active');
+                    document.getElementById('btn-theme-dark').classList.remove('active');
                 }} else {{
-                    document.body.classList.remove("light-theme");
-                    document.getElementById("btn-theme-dark").classList.add("active");
-                    document.getElementById("btn-theme-light").classList.remove("active");
+                    document.body.classList.remove('light-theme');
+                    document.getElementById('btn-theme-dark').classList.add('active');
+                    document.getElementById('btn-theme-light').classList.remove('active');
                 }}
-                localStorage.setItem("app_theme", theme);
+                localStorage.setItem('user_theme', theme);
             }}
-
-            function loadTheme() {{
-                const savedTheme = localStorage.getItem("app_theme") || "dark";
-                setTheme(savedTheme);
-            }}
-
-            window.onload = initMap;
         </script>
     </body>
     </html>
@@ -1033,7 +988,5 @@ def carregar_dados_e_gerar_html():
     return html_content
 
 @app.get("/", response_class=HTMLResponse)
-def index():
-    @app.get("/", response_class=HTMLResponse)
-def index():
+def read_root():
     return carregar_dados_e_gerar_html()
