@@ -15,7 +15,7 @@ if os.path.exists("static"):
     app.mount("/static", StaticFiles(directory="static"), name="static")
 
 GOOGLE_MAPS_API_KEY = "AIzaSyAt_SgOgFsPosjtTeY1nMJVNBLbmYIBtho"
-ICON_BASKET = '<svg class="basket-svg" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M17.21 9l-4.38-6.56c-.19-.28-.51-.42-.83-.42-.32 0-.64.14-.83.43L6.79 9H2c-.55 0-1 .45-1 1 0 .09.01.18.04.27l2.54 9.27c.23.84 1 1.46 1.92 1.46h13c.92 0 1.69-.62 1.93-1.46l2.54-9.27L23 10c0-.55-.45-1-1-1h-4.79zM9 9l3-4.4L15 9H9zm3 8c-1.1 0-2-.9-2-2s.9-2 2-2 2-.9 2-2 2z"/></svg>'
+ICON_BASKET = '<svg class="basket-svg" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M17.21 9l-4.38-6.56c-.19-.28-.51-.42-.83-.42-.32 0-.64.14-.83.43L6.79 9H2c-.55 0-1 .45-1 1 0 .09.01.18.04.27l2.54 9.27c.23.84 1 1.46 1.92 1.46h13c.92 0 1.69-.62 1.93-1.46l2.54-9.27L23 10c0-.55-.45-1-1-1h-4.79zM9 9l3-4.4L15 9H9zm3 8c-1.1 0-2-.9-2-2s.9-2 2-2 2-.9 2-2 2-2z"/></svg>'
 
 # Base de Dados de Usuários em Memória
 DEFAULT_PASS = "Ambev123!"
@@ -312,6 +312,7 @@ def carregar_dados_e_gerar_html():
                     --text-color: #ffffff;
                     --border-color: #34495e;
                     --card-bg: #2c3e50;
+                    --blue-accent: #308ce8;
                 }}
 
                 body.light-theme {{
@@ -512,8 +513,13 @@ def carregar_dados_e_gerar_html():
                 #profile-btn {{ position: absolute; left: 15px; top: 15px; z-index: 20; width: 44px; height: 44px; border-radius: 50%; overflow: hidden; cursor: pointer; border: 2px solid #4285F4; box-shadow: 0 4px 10px rgba(0,0,0,0.3); background: #34495e; display: flex; align-items: center; justify-content: center; }}
                 #profile-btn img {{ width: 100%; height: 100%; object-fit: cover; }}
                 
-                #filter-toggle-btn {{ position: absolute; left: 15px; top: 70px; z-index: 20; width: 42px; height: 42px; border-radius: 50%; background: var(--bg-primary); color: var(--text-color); display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid var(--border-color); box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 18px; }}
-                #location-btn {{ position: absolute; left: 15px; top: 122px; z-index: 20; width: 42px; height: 42px; border-radius: 50%; background: var(--bg-primary); color: var(--text-color); display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid var(--border-color); box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 20px; }}
+                /* Estilização dos Botões Redondos com SVG */
+                .action-btn {{ position: absolute; left: 15px; z-index: 20; width: 42px; height: 42px; border-radius: 50%; background: var(--bg-primary); color: var(--text-color); display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid var(--border-color); box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: all 0.2s ease; }}
+                .action-btn:hover {{ transform: scale(1.05); }}
+                .action-btn svg {{ width: 22px; height: 22px; fill: var(--blue-accent); }}
+
+                #filter-toggle-btn {{ top: 70px; }}
+                #location-btn {{ top: 122px; }}
 
                 #profile-menu {{ position: absolute; left: 15px; top: 68px; background: var(--bg-primary); padding: 15px; border-radius: 15px; color: var(--text-color); border: 1px solid var(--border-color); display: none; width: 240px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 25; }}
                 .profile-header {{ display: flex; flex-direction: column; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; }}
@@ -601,9 +607,20 @@ def carregar_dados_e_gerar_html():
                 <img id="avatar-btn-img" src="https://via.placeholder.com/150/34495e/ffffff?text=User" alt="Perfil">
             </div>
 
-            <!-- Botão de Filtro e Botão da Mira (Geolocalização) -->
-            <div id="filter-toggle-btn" title="Filtros" onclick="toggleFilterMenu()">🎨</div>
-            <div id="location-btn" title="Minha Localização Atual" onclick="getUserLocation()">🎯</div>
+            <!-- Botão de Filtro (Estilo Funil Clean / Linhas Invertidas) -->
+            <div id="filter-toggle-btn" class="action-btn" title="Filtros" onclick="toggleFilterMenu()">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/>
+                </svg>
+            </div>
+
+            <!-- Botão de Geolocalização (Alvo Blue Clean) -->
+            <div id="location-btn" class="action-btn" title="Minha Localização Atual" onclick="getUserLocation()">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8zm0-13a5 5 0 1 0 5 5 5 5 0 0 0-5-5zm0 8a3 3 0 1 1 3-3 3 3 0 0 1-3 3z"/>
+                    <path d="M12 1v3m0 16v3M1 12h3m16 0h3" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+            </div>
 
             <!-- Menu do Perfil -->
             <div id="profile-menu">
@@ -784,7 +801,7 @@ def carregar_dados_e_gerar_html():
                                         icon: {{
                                             path: google.maps.SymbolPath.CIRCLE,
                                             scale: 8,
-                                            fillColor: "#4285F4",
+                                            fillColor: "#308ce8",
                                             fillOpacity: 1,
                                             strokeColor: "#ffffff",
                                             strokeWeight: 3
