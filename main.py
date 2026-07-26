@@ -159,7 +159,7 @@ def carregar_dados_e_gerar_html():
         pasta_dados = "dados"
         
         if not os.path.exists(pasta_dados):
-            return f"<h1>Erro: A pasta '{pasta_dados}' não foi encontrada no projeto.</h1>"
+            return f"<h1 style='font-family:sans-serif; color:#ff3131; padding:20px;'>Erro: A pasta '{pasta_dados}' não foi encontrada no projeto.</h1>"
 
         # Tenta procurar qualquer arquivo de vendas na pasta
         arquivos = [f for f in os.listdir(pasta_dados) if not f.startswith("~$")]
@@ -193,11 +193,21 @@ def carregar_dados_e_gerar_html():
             return f"<h1 style='font-family:sans-serif; color:#ff3131; padding:20px;'>Erro: Não foi possível ler o arquivo de dados na pasta 'dados/'. Certifique-se de que o arquivo 'clientes_vendas_teste' está lá.</h1>"
 
         df = df.fillna('')
-        df['Setor'] = df['Setor'].apply(formatar_setor)
+        
+        # Normalizar colunas removendo espaços nas extremidades
+        df.columns = [str(c).strip() for c in df.columns]
 
-        setores_unicos = sorted([str(s) for s in df['Setor'].unique() if str(s).strip() != ''])
-        segmentacoes_unicas = sorted([str(s) for s in df['Segmentação'].unique() if str(s).strip() != ''])
-        regioes_unicas = sorted([str(r) for r in df['Região (DF)'].unique() if str(r).strip() != ''])
+        if 'Setor' in df.columns:
+            df['Setor'] = df['Setor'].apply(formatar_setor)
+
+        # Checagem segura das colunas de filtro
+        col_setor = 'Setor' if 'Setor' in df.columns else ''
+        col_seg = 'Segmentação' if 'Segmentação' in df.columns else ''
+        col_reg = 'Região (DF)' if 'Região (DF)' in df.columns else ''
+
+        setores_unicos = sorted([str(s) for s in df[col_setor].unique() if str(s).strip() != '']) if col_setor else []
+        segmentacoes_unicas = sorted([str(s) for s in df[col_seg].unique() if str(s).strip() != '']) if col_seg else []
+        regioes_unicas = sorted([str(r) for r in df[col_reg].unique() if str(r).strip() != '']) if col_reg else []
 
         markers_list = []
         for _, row in df.iterrows():
