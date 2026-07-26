@@ -70,13 +70,14 @@ def carregar_dados_e_gerar_html():
         codigo_cli = str(row.iloc[0])
         search_tag = f"{cliente} {cnpj} {codigo_cli} {setor_formatado}".lower()
         
-        # Estrutura adaptável e responsiva do Popup
         content_html = f"""
             <div style='width: 280px; max-width: 82vw; max-height: 75vh; overflow-y: auto; font-family: sans-serif; line-height: 1.4; color: #ffffff; background: #2c3e50; padding: 0; border-radius: 10px; box-shadow: 0 8px 20px rgba(0,0,0,0.4); position: relative; user-select: none; -webkit-user-select: none;'>
+                <!-- Cabeçalho Colorido -->
                 <div style='background:{cor_hex}; color:white; padding: 12px; padding-right: 45px; border-radius: 10px 10px 0 0;'>
                     <div style='font-size:15px; font-weight:bold; word-wrap: break-word;'>{cliente}</div>
                     <div style='font-size:11px; opacity:0.9;'>CNPJ: {cnpj} | Cód: {codigo_cli}</div>
                 </div>
+                <!-- Corpo do Card -->
                 <div style='padding: 10px 12px 12px 12px;'>
                     <div style='font-size:12px; padding-bottom: 8px; color: #ecf0f1;'>
                         <b>Região:</b> {row['Região (DF)']}<br>
@@ -96,6 +97,7 @@ def carregar_dados_e_gerar_html():
                         <div style='width:20px; color:{cor_hex}; flex-shrink: 0;'>{ICON_BASKET}</div>
                         <div><b>Comprou no Mês:</b> {comprou if comprou else 'Não'}<br><b>Cadastro:</b> {status_cadastral}</div>
                     </div>
+                    <!-- Link universal do Google Maps -->
                     <a href='http://maps.google.com/maps?daddr={lat},{lng}' target='_blank' rel='noopener noreferrer'
                        style='display:block; background:#4285F4; color:white; text-align:center; padding:10px; border-radius:25px; text-decoration:none; font-weight:bold; font-size:13px;'>
                         VER TRAJETO GOOGLE MAPS
@@ -126,6 +128,7 @@ def carregar_dados_e_gerar_html():
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
         
+        <!-- ÍCONES E SUPORTE A PWA / TELA INICIAL -->
         <link rel="manifest" href="/static/manifest.json">
         <link rel="icon" type="image/png" href="/static/icon.png">
         <link rel="apple-touch-icon" href="/static/icon.png">
@@ -137,6 +140,22 @@ def carregar_dados_e_gerar_html():
         <title>Mapa de Vendas</title>
         <script src="https://maps.googleapis.com/maps/api/js?key={GOOGLE_MAPS_API_KEY}"></script>
         <style>
+            :root {{
+                --bg-primary: #2c3e50;
+                --bg-secondary: #34495e;
+                --text-color: #ffffff;
+                --border-color: #34495e;
+                --card-bg: #2c3e50;
+            }}
+
+            body.light-theme {{
+                --bg-primary: #ffffff;
+                --bg-secondary: #f0f3f6;
+                --text-color: #2c3e50;
+                --border-color: #dcdde1;
+                --card-bg: #ffffff;
+            }}
+
             body, html {{ 
                 height: 100%; 
                 margin: 0; 
@@ -207,11 +226,11 @@ def carregar_dados_e_gerar_html():
                 max-width: 420px; 
             }}
             #search-container {{ 
-                background: #2c3e50; 
+                background: var(--bg-primary); 
                 padding: 8px 15px; 
                 border-radius: 35px; 
                 box-shadow: 0 10px 25px rgba(0,0,0,0.5); 
-                border: 1px solid #34495e; 
+                border: 1px solid var(--border-color); 
                 display: flex; 
                 align-items: center; 
                 position: relative; 
@@ -223,41 +242,58 @@ def carregar_dados_e_gerar_html():
                 font-size: 14px; 
                 text-align: center; 
                 background: transparent; 
-                color: #ffffff; 
+                color: var(--text-color); 
                 padding-right: 25px;
                 user-select: text !important;
                 -webkit-user-select: text !important;
             }}
             #clear-search {{ position: absolute; right: 15px; color: #ff3131; font-weight: bold; cursor: pointer; font-size: 20px; display: none; }}
-            #suggestions {{ background: #2c3e50; border-radius: 20px; margin-top: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.4); max-height: 200px; overflow-y: auto; display: none; border: 1px solid #34495e; }}
-            .suggestion-item {{ padding: 12px 20px; cursor: pointer; border-bottom: 1px solid #34495e; font-size: 14px; color: #4285F4; }}
+            #suggestions {{ background: var(--bg-primary); border-radius: 20px; margin-top: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.4); max-height: 200px; overflow-y: auto; display: none; border: 1px solid var(--border-color); }}
+            .suggestion-item {{ padding: 12px 20px; cursor: pointer; border-bottom: 1px solid var(--border-color); font-size: 14px; color: #4285F4; }}
             
             .beam-container {{ position: absolute; pointer-events: none; }}
             .beam-shape {{ width: 0; height: 0; border-left: 40px solid transparent; border-right: 40px solid transparent; border-bottom: 120px solid rgba(66, 133, 244, 0.4); filter: blur(5px); transform-origin: 50% 100%; background: linear-gradient(to top, rgba(66, 133, 244, 0.8), transparent); clip-path: polygon(50% 100%, 0% 0%, 100% 0%); margin-left: -40px; margin-top: -120px; }}
             
-            #legend-toggle {{ position: absolute; bottom: 25px; right: 10px; background: #2c3e50; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 6; border: 1px solid #34495e; }}
-            #legend {{ position: absolute; bottom: 75px; right: 10px; background: white; padding: 10px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 5; font-size: 12px; border-left: 5px solid #4285F4; display: none; }}
+            #legend-toggle {{ position: absolute; bottom: 25px; right: 10px; background: var(--bg-primary); color: var(--text-color); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 6; border: 1px solid var(--border-color); }}
+            #legend {{ position: absolute; bottom: 75px; right: 10px; background: white; padding: 10px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 5; font-size: 12px; border-left: 5px solid #4285F4; display: none; color: #2c3e50; }}
             .legend-row {{ display: flex; align-items: center; margin-bottom: 5px; font-weight: 600; gap: 8px; }}
             .basket-svg {{ width: 18px; height: 18px; }}
             
-            .custom-controls {{ position: absolute; left: 15px; top: 75px; z-index: 5; display: flex; flex-direction: column; gap: 8px; }}
+            .custom-controls {{ position: absolute; left: 15px; top: 125px; z-index: 5; display: flex; flex-direction: column; gap: 8px; }}
             .map-btn {{ background: white; border: none; width: 40px; height: 40px; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; }}
             
-            #menu-container {{ position: absolute; left: 15px; top: 15px; z-index: 20; }}
-            #menu-toggle {{ background: #2c3e50; color: white; width: 42px; height: 42px; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; border: 1px solid #34495e; }}
-            .bar {{ width: 20px; height: 2px; background-color: white; margin: 2px 0; }}
+            /* Botão do Perfil e Botão de Filtro */
+            #profile-btn {{ position: absolute; left: 15px; top: 15px; z-index: 20; width: 44px; height: 44px; border-radius: 50%; overflow: hidden; cursor: pointer; border: 2px solid #4285F4; box-shadow: 0 4px 10px rgba(0,0,0,0.3); background: #34495e; display: flex; align-items: center; justify-content: center; }}
+            #profile-btn img {{ width: 100%; height: 100%; object-fit: cover; }}
             
-            #filter-menu {{ position: absolute; left: 0; top: 52px; background: #2c3e50; padding: 12px; border-radius: 15px; color: white; border: 1px solid #34495e; display: none; width: 230px; max-height: 70vh; overflow-y: auto; }}
+            #filter-toggle-btn {{ position: absolute; left: 15px; top: 70px; z-index: 20; width: 42px; height: 42px; border-radius: 50%; background: var(--bg-primary); color: var(--text-color); display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid var(--border-color); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }}
+
+            /* Menu de Perfil */
+            #profile-menu {{ position: absolute; left: 15px; top: 68px; background: var(--bg-primary); padding: 15px; border-radius: 15px; color: var(--text-color); border: 1px solid var(--border-color); display: none; width: 240px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 25; }}
+            .profile-header {{ display: flex; flex-direction: column; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; }}
+            .profile-img-wrapper {{ width: 70px; height: 70px; border-radius: 50%; overflow: hidden; border: 2px solid #4285F4; cursor: pointer; position: relative; margin-bottom: 8px; background: #34495e; display: flex; align-items: center; justify-content: center; }}
+            .profile-img-wrapper img {{ width: 100%; height: 100%; object-fit: cover; }}
+            .profile-img-wrapper::after {{ content: '📷'; position: absolute; bottom: 0; background: rgba(0,0,0,0.6); width: 100%; text-align: center; font-size: 10px; color: white; padding: 2px 0; }}
+            .profile-name {{ font-weight: bold; font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 5px; color: var(--text-color); }}
+            .profile-name:hover {{ color: #4285F4; }}
+            .theme-section {{ margin-top: 10px; }}
+            .theme-title {{ font-size: 12px; font-weight: bold; margin-bottom: 8px; opacity: 0.8; text-transform: uppercase; }}
+            .theme-options {{ display: flex; flex-direction: column; gap: 6px; }}
+            .theme-btn {{ background: var(--bg-secondary); color: var(--text-color); border: 1px solid var(--border-color); padding: 8px 10px; border-radius: 8px; cursor: pointer; font-size: 12px; text-align: left; display: flex; align-items: center; justify-content: space-between; }}
+            .theme-btn.active {{ border-color: #4285F4; font-weight: bold; background: #4285F4; color: white; }}
+
+            /* Menu de Filtros */
+            #filter-menu {{ position: absolute; left: 15px; top: 120px; background: var(--bg-primary); padding: 12px; border-radius: 15px; color: var(--text-color); border: 1px solid var(--border-color); display: none; width: 230px; max-height: 60vh; overflow-y: auto; z-index: 21; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }}
             .filter-group {{ margin-bottom: 6px; }}
-            .filter-header {{ display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: bold; font-size: 13px; padding: 8px 4px; border-bottom: 1px solid #34495e; user-select: none; }}
+            .filter-header {{ display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: bold; font-size: 13px; padding: 8px 4px; border-bottom: 1px solid var(--border-color); user-select: none; }}
             .filter-header:hover {{ color: #4285F4; }}
             .arrow {{ transition: transform 0.3s ease; font-size: 10px; display: inline-block; }}
             .arrow.open {{ transform: rotate(180deg); }}
             .filter-content {{ display: none; padding: 8px 0 4px 0; }}
             .filter-option {{ display: flex; align-items: center; gap: 8px; font-size: 12px; margin-bottom: 6px; cursor: pointer; }}
             .btn-group {{ display: flex; gap: 6px; margin-bottom: 8px; }}
-            .btn-group button {{ background: #34495e; color: white; border: none; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }}
-            .btn-group button:hover {{ background: #4285F4; }}
+            .btn-group button {{ background: var(--bg-secondary); color: var(--text-color); border: none; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }}
+            .btn-group button:hover {{ background: #4285F4; color: white; }}
 
             /* Responsividade para celulares pequenos */
             @media (max-width: 480px) {{
@@ -267,69 +303,101 @@ def carregar_dados_e_gerar_html():
         </style>
     </head>
     <body>
-        <div id="menu-container">
-            <div id="menu-toggle" onclick="toggleMenu()"><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
-            <div id="filter-menu">
-                
-                <div class="filter-group">
-                    <div class="filter-header" onclick="toggleAccordion(this)">
-                        <span>STATUS:</span>
-                        <span class="arrow">▼</span>
-                    </div>
-                    <div class="filter-content">
-                        <div class="btn-group">
-                            <button onclick="selectAll(this, true)">Tudo</button>
-                            <button onclick="selectAll(this, false)">Limpar</button>
-                        </div>
-                        <label class="filter-option"><input type="checkbox" class="filter-check" value="comprou_sim" checked> Comprou</label>
-                        <label class="filter-option"><input type="checkbox" class="filter-check" value="comprou_nao" checked> Não Comprou</label>
-                        <label class="filter-option"><input type="checkbox" class="filter-check" value="inativo" checked> Inativo</label>
-                        <label class="filter-option"><input type="checkbox" class="filter-check" value="prospeccao" checked> Prospecção</label>
-                    </div>
-                </div>
+        <!-- BOTÃO DO PERFIL -->
+        <div id="profile-btn" onclick="toggleProfileMenu()">
+            <img id="user-avatar-btn" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="Perfil">
+        </div>
 
-                <div class="filter-group">
-                    <div class="filter-header" onclick="toggleAccordion(this)">
-                        <span>SETOR:</span>
-                        <span class="arrow">▼</span>
-                    </div>
-                    <div class="filter-content">
-                        <div class="btn-group">
-                            <button onclick="selectAll(this, true)">Tudo</button>
-                            <button onclick="selectAll(this, false)">Limpar</button>
-                        </div>
-                        {"".join([f'<label class="filter-option"><input type="checkbox" class="filter-check set-filter" value="{setor}" checked> {setor}</label>' for setor in setores_unicos])}
-                    </div>
+        <!-- MENU DE PERFIL E TEMAS -->
+        <div id="profile-menu">
+            <div class="profile-header">
+                <div class="profile-img-wrapper" onclick="triggerPhotoUpload()">
+                    <img id="user-avatar-menu" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="Foto do Perfil">
                 </div>
-
-                <div class="filter-group">
-                    <div class="filter-header" onclick="toggleAccordion(this)">
-                        <span>SEGMENTAÇÃO:</span>
-                        <span class="arrow">▼</span>
-                    </div>
-                    <div class="filter-content">
-                        <div class="btn-group">
-                            <button onclick="selectAll(this, true)">Tudo</button>
-                            <button onclick="selectAll(this, false)">Limpar</button>
-                        </div>
-                        {"".join([f'<label class="filter-option"><input type="checkbox" class="filter-check seg-filter" value="{seg}" checked> {seg}</label>' for seg in segmentacoes_unicas])}
-                    </div>
+                <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none;" onchange="handlePhotoSelect(event)">
+                <div class="profile-name" onclick="editUserName()">
+                    <span id="user-name-display">Usuário</span> ✏️
                 </div>
-
-                <div class="filter-group">
-                    <div class="filter-header" onclick="toggleAccordion(this)">
-                        <span>REGIÃO DF:</span>
-                        <span class="arrow">▼</span>
-                    </div>
-                    <div class="filter-content">
-                        <div class="btn-group">
-                            <button onclick="selectAll(this, true)">Tudo</button>
-                            <button onclick="selectAll(this, false)">Limpar</button>
-                        </div>
-                        {"".join([f'<label class="filter-option"><input type="checkbox" class="filter-check reg-filter" value="{reg}" checked> {reg}</label>' for reg in regioes_unicas])}
-                    </div>
+            </div>
+            <div class="theme-section">
+                <div class="theme-title">Aparência do Tema</div>
+                <div class="theme-options">
+                    <button class="theme-btn" id="theme-dark-btn" onclick="setTheme('dark')">🌙 Tema Escuro</button>
+                    <button class="theme-btn" id="theme-light-btn" onclick="setTheme('light')">☀️ Tema Claro</button>
+                    <button class="theme-btn" id="theme-system-btn" onclick="setTheme('system')">📱 Usar Tema do Sistema</button>
                 </div>
+            </div>
+        </div>
 
+        <!-- BOTÃO E MENU DE FILTROS -->
+        <div id="filter-toggle-btn" onclick="toggleFilterMenu()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/>
+            </svg>
+        </div>
+
+        <div id="filter-menu">
+            <!-- STATUS -->
+            <div class="filter-group">
+                <div class="filter-header" onclick="toggleAccordion(this)">
+                    <span>STATUS:</span>
+                    <span class="arrow">▼</span>
+                </div>
+                <div class="filter-content">
+                    <div class="btn-group">
+                        <button onclick="selectAll(this, true)">Tudo</button>
+                        <button onclick="selectAll(this, false)">Limpar</button>
+                    </div>
+                    <label class="filter-option"><input type="checkbox" class="filter-check" value="comprou_sim" checked> Comprou</label>
+                    <label class="filter-option"><input type="checkbox" class="filter-check" value="comprou_nao" checked> Não Comprou</label>
+                    <label class="filter-option"><input type="checkbox" class="filter-check" value="inativo" checked> Inativo</label>
+                    <label class="filter-option"><input type="checkbox" class="filter-check" value="prospeccao" checked> Prospecção</label>
+                </div>
+            </div>
+
+            <!-- SETOR -->
+            <div class="filter-group">
+                <div class="filter-header" onclick="toggleAccordion(this)">
+                    <span>SETOR:</span>
+                    <span class="arrow">▼</span>
+                </div>
+                <div class="filter-content">
+                    <div class="btn-group">
+                        <button onclick="selectAll(this, true)">Tudo</button>
+                        <button onclick="selectAll(this, false)">Limpar</button>
+                    </div>
+                    {"".join([f'<label class="filter-option"><input type="checkbox" class="filter-check set-filter" value="{setor}" checked> {setor}</label>' for setor in setores_unicos])}
+                </div>
+            </div>
+
+            <!-- SEGMENTAÇÃO -->
+            <div class="filter-group">
+                <div class="filter-header" onclick="toggleAccordion(this)">
+                    <span>SEGMENTAÇÃO:</span>
+                    <span class="arrow">▼</span>
+                </div>
+                <div class="filter-content">
+                    <div class="btn-group">
+                        <button onclick="selectAll(this, true)">Tudo</button>
+                        <button onclick="selectAll(this, false)">Limpar</button>
+                    </div>
+                    {"".join([f'<label class="filter-option"><input type="checkbox" class="filter-check seg-filter" value="{seg}" checked> {seg}</label>' for seg in segmentacoes_unicas])}
+                </div>
+            </div>
+
+            <!-- REGIÃO DF -->
+            <div class="filter-group">
+                <div class="filter-header" onclick="toggleAccordion(this)">
+                    <span>REGIÃO DF:</span>
+                    <span class="arrow">▼</span>
+                </div>
+                <div class="filter-content">
+                    <div class="btn-group">
+                        <button onclick="selectAll(this, true)">Tudo</button>
+                        <button onclick="selectAll(this, false)">Limpar</button>
+                    </div>
+                    {"".join([f'<label class="filter-option"><input type="checkbox" class="filter-check reg-filter" value="{reg}" checked> {reg}</label>' for reg in regioes_unicas])}
+                </div>
             </div>
         </div>
 
@@ -369,7 +437,20 @@ def carregar_dados_e_gerar_html():
             var map, markers = [], infoWindow, userMarker, beamOverlay;
             var data = {markers_json};
 
-            function toggleMenu() {{ var m = document.getElementById('filter-menu'); m.style.display = (m.style.display === 'block') ? 'none' : 'block'; }}
+            function toggleProfileMenu() {{ 
+                var pm = document.getElementById('profile-menu'); 
+                var fm = document.getElementById('filter-menu');
+                fm.style.display = 'none';
+                pm.style.display = (pm.style.display === 'block') ? 'none' : 'block'; 
+            }}
+
+            function toggleFilterMenu() {{ 
+                var fm = document.getElementById('filter-menu'); 
+                var pm = document.getElementById('profile-menu');
+                pm.style.display = 'none';
+                fm.style.display = (fm.style.display === 'block') ? 'none' : 'block'; 
+            }}
+
             function toggleLegend() {{ var l = document.getElementById('legend'); l.style.display = (l.style.display === 'block') ? 'none' : 'block'; }}
             function clearSearchInput() {{ document.getElementById('search-input').value = ''; document.getElementById('clear-search').style.display = 'none'; document.getElementById('suggestions').style.display = 'none'; }}
 
@@ -392,6 +473,85 @@ def carregar_dados_e_gerar_html():
                 applyFilters();
             }}
 
+            /* GERENCIAMENTO DE PERFIL E FOTO */
+            function triggerPhotoUpload() {{
+                document.getElementById('photo-input').click();
+            }}
+
+            function handlePhotoSelect(event) {{
+                var file = event.target.files[0];
+                if (file) {{
+                    var reader = new FileReader();
+                    reader.onload = function(e) {{
+                        var photoUrl = e.target.result;
+                        document.getElementById('user-avatar-btn').src = photoUrl;
+                        document.getElementById('user-avatar-menu').src = photoUrl;
+                        localStorage.setItem('user_profile_photo', photoUrl);
+                    }};
+                    reader.readAsDataURL(file);
+                }}
+            }}
+
+            function editUserName() {{
+                var currentName = localStorage.getItem('user_profile_name') || 'Usuário';
+                var newName = prompt('Digite o seu nome:', currentName);
+                if (newName && newName.trim() !== '') {{
+                    document.getElementById('user-name-display').innerText = newName.trim();
+                    localStorage.setItem('user_profile_name', newName.trim());
+                }}
+            }}
+
+            function loadUserProfile() {{
+                var savedPhoto = localStorage.getItem('user_profile_photo');
+                if (savedPhoto) {{
+                    document.getElementById('user-avatar-btn').src = savedPhoto;
+                    document.getElementById('user-avatar-menu').src = savedPhoto;
+                }}
+                var savedName = localStorage.getItem('user_profile_name');
+                if (savedName) {{
+                    document.getElementById('user-name-display').innerText = savedName;
+                }}
+            }}
+
+            /* GERENCIAMENTO DE TEMA */
+            function setTheme(theme) {{
+                localStorage.setItem('user_theme_preference', theme);
+                updateThemeUI(theme);
+            }}
+
+            function updateThemeUI(theme) {{
+                document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+                
+                var isDark = false;
+                if (theme === 'dark') {{
+                    isDark = true;
+                    document.getElementById('theme-dark-btn').classList.add('active');
+                }} else if (theme === 'light') {{
+                    isDark = false;
+                    document.getElementById('theme-light-btn').classList.add('active');
+                }} else {{
+                    document.getElementById('theme-system-btn').classList.add('active');
+                    isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                }}
+
+                if (isDark) {{
+                    document.body.classList.remove('light-theme');
+                }} else {{
+                    document.body.classList.add('light-theme');
+                }}
+            }}
+
+            function loadUserTheme() {{
+                var savedTheme = localStorage.getItem('user_theme_preference') || 'system';
+                updateThemeUI(savedTheme);
+                
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {{
+                    if ((localStorage.getItem('user_theme_preference') || 'system') === 'system') {{
+                        updateThemeUI('system');
+                    }}
+                }});
+            }}
+
             function initMap() {{
                 map = new google.maps.Map(document.getElementById('map'), {{ zoom: 11, center: {{lat: -15.7938, lng: -47.8827}}, disableDefaultUI: true }});
                 infoWindow = new google.maps.InfoWindow();
@@ -405,6 +565,9 @@ def carregar_dados_e_gerar_html():
                     markers.push(marker);
                 }});
                 document.querySelectorAll('.filter-check').forEach(chk => chk.onchange = applyFilters);
+                
+                loadUserProfile();
+                loadUserTheme();
             }}
 
             function applyFilters() {{
