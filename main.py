@@ -8,6 +8,7 @@ import re
 import random
 import smtplib
 from email.mime.text import MIMEText
+import chardet
 
 app = FastAPI()
 
@@ -35,6 +36,20 @@ SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
 SMTP_USER = os.getenv("SMTP_USER", "")
 SMTP_PASS = os.getenv("SMTP_PASS", "")
 
+def corrigir_texto(val):
+    """Garante que textos sejam convertidos para UTF-8 limpo sem caracteres corrompidos."""
+    if pd.isna(val) or val is None:
+        return ""
+    texto = str(val).strip()
+    
+    # Corrige problemas comuns de encoding corrompido (ex: Ã§ -> ç)
+    try:
+        texto = texto.encode('latin1').decode('utf-8')
+    except (UnicodeEncodeError, UnicodeDecodeError):
+        pass
+        
+    return texto
+
 def validar_regras_senha(senha: str) -> str:
     if len(senha) < 6:
         return "A senha deve ter no mínimo 6 caracteres."
@@ -49,7 +64,7 @@ def validar_regras_senha(senha: str) -> str:
 def enviar_codigo_email(destinatario: str, codigo: str):
     if SMTP_USER and SMTP_PASS:
         try:
-            msg = MIMEText(f"Seu código de verificação para redefinição de senha é: {codigo}")
+            msg = MIMEText(f"Seu código de verificação para redefinição de senha é: {codigo}", 'plain', 'utf-8')
             msg['Subject'] = 'Código de Verificação - Mapa de Vendas'
             msg['From'] = SMTP_USER
             msg['To'] = destinatario
@@ -145,27 +160,43 @@ def carregar_dados_e_gerar_html():
         for nome in arquivos:
             if "clientes_vendas_teste" in nome:
                 caminho_completo = os.path.join(pasta_dados, nome)
+                
+                # Tenta detectar a codificação real do arquivo
+                encoding_detectado = 'utf-8-sig'
                 try:
-                    df = pd.read_csv(caminho_completo, dtype={'Setor': str}, sep=None, engine='python', encoding='utf-8-sig')
-                    break
+                    with open(caminho_completo, 'rb') as f:
+                        rawdata = f.read(20000)
+                        result = chardet.detect(rawdata)
+                        if result and result['encoding']:
+                            encoding_detectado = result['encoding']
                 except Exception:
                     pass
-                try:
-                    df = pd.read_csv(caminho_completo, dtype={'Setor': str}, sep=None, engine='python', encoding='latin1')
+
+                encodings_tentativas = [encoding_detectado, 'utf-8-sig', 'latin1', 'cp1252', 'iso-8859-1']
+                
+                for enc in encodings_tentativas:
+                    try:
+                        if nome.endswith('.xlsx') or nome.endswith('.xls'):
+                            df = pd.read_excel(caminho_completo, engine='openpyxl', dtype={'Setor': str})
+                        else:
+                            df = pd.read_csv(caminho_completo, dtype={'Setor': str}, sep=None, engine='python', encoding=enc)
+                        if df is not None and not df.empty:
+                            break
+                    except Exception:
+                        continue
+                if df is not None:
                     break
-                except Exception:
-                    pass
-                try:
-                    df = pd.read_excel(caminho_completo, engine='openpyxl', dtype={'Setor': str})
-                    break
-                except Exception:
-                    pass
 
         if df is None:
             return f"<h1 style='font-family:sans-serif; color:#ff3131; padding:20px;'>Erro: Não foi possível ler o arquivo de dados na pasta 'dados/'.</h1>"
 
         df = df.fillna('')
-        df.columns = [str(c).strip() for c in df.columns]
+        df.columns = [corrigir_texto(c) for c in df.columns]
+
+        # Aplicar correção de texto em todas as colunas de texto do DataFrame
+        for col in df.columns:
+            if df[col].dtype == object:
+                df[col] = df[col].apply(corrigir_texto)
 
         # Identificação inteligente das colunas
         col_setor = encontrar_coluna(df, ['setor'])
@@ -262,7 +293,7 @@ def carregar_dados_e_gerar_html():
                 "regiao": regiao_val
             })
 
-        markers_json = json.dumps(markers_list)
+        markers_json = json.dumps(markers_list, ensure_ascii=False)
 
         checkboxes_setor = "".join([
             f'<label class="chk-item"><input type="checkbox" class="chk-setor" value="{s}" checked onchange="applyFilters()"> {s}</label>'
@@ -284,6 +315,7 @@ def carregar_dados_e_gerar_html():
         <html lang="pt-br">
         <head>
             <meta charset="utf-8">
+            <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
             <link rel="manifest" href="/static/manifest.json">
             <link rel="icon" type="image/png" href="/static/icon.png">
@@ -523,7 +555,6 @@ def carregar_dados_e_gerar_html():
                 #filter-toggle-btn {{ top: 70px; }}
                 #location-btn {{ top: 122px; }}
 
-                /* Botão de Fechar Quadrado Vermelho colado no canto da janela */
                 .close-window-btn {{
                     position: absolute;
                     top: 0;
@@ -547,7 +578,6 @@ def carregar_dados_e_gerar_html():
                     background-color: #d62828;
                 }}
 
-                /* Menu de Perfil */
                 #profile-menu {{ 
                     position: absolute; 
                     left: 15px; 
@@ -588,7 +618,6 @@ def carregar_dados_e_gerar_html():
                 .theme-btn {{ background: var(--bg-secondary); color: var(--text-color); border: 1px solid var(--border-color); padding: 8px 10px; border-radius: 8px; cursor: pointer; font-size: 12px; text-align: left; display: flex; align-items: center; justify-content: space-between; }}
                 .theme-btn.active {{ border-color: #4285F4; font-weight: bold; background: #4285F4; color: white; }}
 
-                /* Menu de Filtros Avançado com Expandir/Recolher (Accordion) */
                 #filter-menu {{ 
                     position: absolute; 
                     left: 15px; 
@@ -1314,4 +1343,4 @@ def carregar_dados_e_gerar_html():
 
 @app.get("/", response_class=HTMLResponse)
 def read_root():
-    return carregar_dados_e_gerar_html()
+    return HTMLResponse(content=carregar_dados_e_gerar_html(), media_type="text/html; charset=utf-8")
