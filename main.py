@@ -285,9 +285,21 @@ def carregar_dados_e_gerar_html():
 
         markers_json = json.dumps(markers_list)
 
-        options_setor = "".join([f'<option value="{s}">{s}</option>' for s in setores_unicos])
-        options_seg = "".join([f'<option value="{s}">{s}</option>' for s in segmentacoes_unicas])
-        options_reg = "".join([f'<option value="{r}">{r}</option>' for r in regioes_unicas])
+        # Gerando checkboxes dinamicos para Setor, Segmentação e Região DF
+        checkboxes_setor = "".join([
+            f'<label class="chk-item"><input type="checkbox" class="chk-setor" value="{s}" checked onchange="applyFilters()"> {s}</label>'
+            for s in setores_unicos
+        ])
+        
+        checkboxes_seg = "".join([
+            f'<label class="chk-item"><input type="checkbox" class="chk-seg" value="{s}" checked onchange="applyFilters()"> {s}</label>'
+            for s in segmentacoes_unicas
+        ])
+        
+        checkboxes_reg = "".join([
+            f'<label class="chk-item"><input type="checkbox" class="chk-reg" value="{r}" checked onchange="applyFilters()"> {r}</label>'
+            for r in regioes_unicas
+        ])
 
         html_content = f"""
         <!DOCTYPE html>
@@ -333,9 +345,7 @@ def carregar_dados_e_gerar_html():
                     -webkit-user-select: none;
                 }}
                 
-                *:focus {{
-                    outline: none !important;
-                }}
+                *:focus {{ outline: none !important; }}
 
                 #auth-overlay {{
                     position: fixed;
@@ -372,9 +382,7 @@ def carregar_dados_e_gerar_html():
                     margin-bottom: 20px;
                 }}
 
-                .auth-field {{
-                    margin-bottom: 15px;
-                }}
+                .auth-field {{ margin-bottom: 15px; }}
 
                 .auth-field label {{
                     display: block;
@@ -510,10 +518,26 @@ def carregar_dados_e_gerar_html():
                 .legend-row {{ display: flex; align-items: center; margin-bottom: 5px; font-weight: 600; gap: 8px; }}
                 .basket-svg {{ width: 18px; height: 18px; }}
                 
-                #profile-btn {{ position: absolute; left: 15px; top: 15px; z-index: 20; width: 44px; height: 44px; border-radius: 50%; overflow: hidden; cursor: pointer; border: 2px solid #4285F4; box-shadow: 0 4px 10px rgba(0,0,0,0.3); background: #34495e; display: flex; align-items: center; justify-content: center; }}
-                #profile-btn img {{ width: 100%; height: 100%; object-fit: cover; }}
-                
-                /* Estilização dos Botões Redondos com SVG */
+                #profile-btn {{ 
+                    position: absolute; 
+                    left: 15px; 
+                    top: 15px; 
+                    z-index: 20; 
+                    width: 44px; 
+                    height: 44px; 
+                    border-radius: 50%; 
+                    overflow: hidden; 
+                    cursor: pointer; 
+                    border: 2px solid #4285F4; 
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.3); 
+                    background: #000000; 
+                    display: flex; 
+                    align-items: center; 
+                    justify-content: center; 
+                }}
+                #profile-btn img {{ width: 100%; height: 100%; object-fit: cover; display: none; }}
+                #profile-btn .avatar-initial {{ color: #ffffff; font-weight: bold; font-size: 20px; text-transform: uppercase; }}
+
                 .action-btn {{ position: absolute; left: 15px; z-index: 20; width: 42px; height: 42px; border-radius: 50%; background: var(--bg-primary); color: var(--text-color); display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid var(--border-color); box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: all 0.2s ease; }}
                 .action-btn:hover {{ transform: scale(1.05); }}
                 .action-btn svg {{ width: 22px; height: 22px; fill: var(--blue-accent); }}
@@ -521,10 +545,62 @@ def carregar_dados_e_gerar_html():
                 #filter-toggle-btn {{ top: 70px; }}
                 #location-btn {{ top: 122px; }}
 
-                #profile-menu {{ position: absolute; left: 15px; top: 68px; background: var(--bg-primary); padding: 15px; border-radius: 15px; color: var(--text-color); border: 1px solid var(--border-color); display: none; width: 240px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 25; }}
+                /* Botão de Fechar Quadrado Vermelho com X */
+                .close-window-btn {{
+                    position: absolute;
+                    top: 12px;
+                    right: 12px;
+                    width: 28px;
+                    height: 28px;
+                    background-color: #ff3131;
+                    border-radius: 6px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                    font-weight: bold;
+                    font-size: 16px;
+                    cursor: pointer;
+                    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+                    z-index: 30;
+                    user-select: none;
+                }}
+                .close-window-btn:hover {{
+                    background-color: #d62828;
+                }}
+
+                /* Menu de Perfil */
+                #profile-menu {{ 
+                    position: absolute; 
+                    left: 15px; 
+                    top: 68px; 
+                    background: var(--bg-primary); 
+                    padding: 20px 15px 15px 15px; 
+                    border-radius: 15px; 
+                    color: var(--text-color); 
+                    border: 1px solid var(--border-color); 
+                    display: none; 
+                    width: 250px; 
+                    box-shadow: 0 10px 25px rgba(0,0,0,0.5); 
+                    z-index: 25; 
+                }}
                 .profile-header {{ display: flex; flex-direction: column; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; }}
-                .profile-img-wrapper {{ width: 70px; height: 70px; border-radius: 50%; overflow: hidden; border: 2px solid #4285F4; cursor: pointer; position: relative; margin-bottom: 8px; background: #34495e; display: flex; align-items: center; justify-content: center; }}
-                .profile-img-wrapper img {{ width: 100%; height: 100%; object-fit: cover; }}
+                .profile-img-wrapper {{ 
+                    width: 70px; 
+                    height: 70px; 
+                    border-radius: 50%; 
+                    overflow: hidden; 
+                    border: 2px solid #4285F4; 
+                    cursor: pointer; 
+                    position: relative; 
+                    margin-bottom: 8px; 
+                    background: #000000; 
+                    display: flex; 
+                    align-items: center; 
+                    justify-content: center; 
+                }}
+                .profile-img-wrapper img {{ width: 100%; height: 100%; object-fit: cover; display: none; }}
+                .profile-img-wrapper .avatar-initial-large {{ color: #ffffff; font-weight: bold; font-size: 32px; text-transform: uppercase; }}
                 .profile-img-wrapper::after {{ content: '📷'; position: absolute; bottom: 0; background: rgba(0,0,0,0.6); width: 100%; text-align: center; font-size: 10px; color: white; padding: 2px 0; }}
                 .profile-name {{ font-weight: bold; font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 5px; color: var(--text-color); }}
                 .profile-name:hover {{ color: #4285F4; }}
@@ -534,10 +610,34 @@ def carregar_dados_e_gerar_html():
                 .theme-btn {{ background: var(--bg-secondary); color: var(--text-color); border: 1px solid var(--border-color); padding: 8px 10px; border-radius: 8px; cursor: pointer; font-size: 12px; text-align: left; display: flex; align-items: center; justify-content: space-between; }}
                 .theme-btn.active {{ border-color: #4285F4; font-weight: bold; background: #4285F4; color: white; }}
 
-                #filter-menu {{ position: absolute; left: 15px; top: 125px; background: var(--bg-primary); padding: 15px; border-radius: 15px; color: var(--text-color); border: 1px solid var(--border-color); display: none; width: 250px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 25; }}
-                .filter-group {{ margin-bottom: 10px; }}
-                .filter-group label {{ display: block; font-size: 11px; font-weight: bold; margin-bottom: 4px; text-transform: uppercase; opacity: 0.8; }}
-                .filter-select {{ width: 100%; padding: 8px; border-radius: 8px; background: var(--bg-secondary); color: var(--text-color); border: 1px solid var(--border-color); font-size: 12px; }}
+                /* Menu de Filtros Avançado (Igual ao Vídeo) */
+                #filter-menu {{ 
+                    position: absolute; 
+                    left: 15px; 
+                    top: 125px; 
+                    background: #1e2833; 
+                    padding: 15px; 
+                    border-radius: 15px; 
+                    color: #ffffff; 
+                    border: 1px solid #34495e; 
+                    display: none; 
+                    width: 270px; 
+                    max-height: 75vh; 
+                    overflow-y: auto; 
+                    box-shadow: 0 10px 25px rgba(0,0,0,0.6); 
+                    z-index: 25; 
+                }}
+                
+                .filter-section {{ margin-bottom: 18px; }}
+                .filter-header-row {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #34495e; }}
+                .filter-title {{ font-size: 13px; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase; color: #ffffff; }}
+                .btn-group-action {{ display: flex; gap: 4px; }}
+                .btn-mini {{ background: #34495e; color: #ecf0f1; border: none; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; cursor: pointer; }}
+                .btn-mini:hover {{ background: #4285F4; color: #ffffff; }}
+                
+                .chk-list {{ display: flex; flex-direction: column; gap: 6px; padding-left: 2px; }}
+                .chk-item {{ display: flex; align-items: center; gap: 8px; font-size: 13px; color: #dcdde1; cursor: pointer; user-select: none; }}
+                .chk-item input[type="checkbox"] {{ width: 16px; height: 16px; accent-color: #4285F4; cursor: pointer; }}
 
                 #photo-source-modal {{ display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 100; align-items: center; justify-content: center; }}
                 .modal-box {{ background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; width: 80%; max-width: 280px; text-align: center; color: var(--text-color); }}
@@ -548,7 +648,6 @@ def carregar_dados_e_gerar_html():
         </head>
         <body>
 
-            <!-- OVERLAY DE LOGIN -->
             <div id="auth-overlay">
                 <div id="card-login" class="auth-card">
                     <h2>Mapa de Vendas</h2>
@@ -604,17 +703,16 @@ def carregar_dados_e_gerar_html():
             </div>
 
             <div id="profile-btn" onclick="toggleProfileMenu()">
-                <img id="avatar-btn-img" src="https://via.placeholder.com/150/34495e/ffffff?text=User" alt="Perfil">
+                <img id="avatar-btn-img" src="" alt="Perfil">
+                <span id="avatar-btn-initial" class="avatar-initial"></span>
             </div>
 
-            <!-- Botão de Filtro (Estilo Funil Clean / Linhas Invertidas) -->
             <div id="filter-toggle-btn" class="action-btn" title="Filtros" onclick="toggleFilterMenu()">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/>
                 </svg>
             </div>
 
-            <!-- Botão de Geolocalização (Alvo Blue Clean) -->
             <div id="location-btn" class="action-btn" title="Minha Localização Atual" onclick="getUserLocation()">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8zm0-13a5 5 0 1 0 5 5 5 5 0 0 0-5-5zm0 8a3 3 0 1 1 3-3 3 3 0 0 1-3 3z"/>
@@ -622,75 +720,94 @@ def carregar_dados_e_gerar_html():
                 </svg>
             </div>
 
-            <!-- Menu do Perfil -->
             <div id="profile-menu">
+                <div class="close-window-btn" onclick="toggleProfileMenu()">✕</div>
                 <div class="profile-header">
                     <div class="profile-img-wrapper" onclick="openPhotoModal()">
-                        <img id="avatar-menu-img" src="https://via.placeholder.com/150/34495e/ffffff?text=User" alt="Perfil">
+                        <img id="avatar-menu-img" src="" alt="Perfil">
+                        <span id="avatar-menu-initial" class="avatar-initial-large"></span>
                     </div>
                     <div class="profile-name" onclick="editName()">
                         <span id="user-name-display">Usuário</span> ✏️
                     </div>
                 </div>
                 <div class="theme-section">
-                    <div class="theme-title">Tema do App</div>
+                    <div class="theme-title">Tema</div>
                     <div class="theme-options">
-                        <button class="theme-btn active" id="btn-theme-dark" onclick="setTheme('dark')">🌙 Escuro</button>
                         <button class="theme-btn" id="btn-theme-light" onclick="setTheme('light')">☀️ Claro</button>
+                        <button class="theme-btn" id="btn-theme-dark" onclick="setTheme('dark')">🌙 Escuro</button>
+                        <button class="theme-btn" id="btn-theme-device" onclick="setTheme('device')">📱 Tema do dispositivo</button>
                     </div>
                 </div>
             </div>
 
-            <!-- Menu de Filtros -->
             <div id="filter-menu">
-                <div style="font-weight: bold; font-size: 14px; margin-bottom: 12px; text-align: center;">Filtros de Clientes</div>
+                <div class="close-window-btn" onclick="toggleFilterMenu()">✕</div>
                 
-                <div class="filter-group">
-                    <label>Status</label>
-                    <select id="filter-status" class="filter-select" onchange="applyFilters()">
-                        <option value="">Todos</option>
-                        <option value="comprou_sim">Comprou no Mês</option>
-                        <option value="comprou_nao">Não Comprou no Mês</option>
-                        <option value="prospeccao">Prospecção</option>
-                        <option value="inativo">Inativo</option>
-                    </select>
+                <div class="filter-section">
+                    <div class="filter-header-row">
+                        <span class="filter-title">STATUS:</span>
+                        <div class="btn-group-action">
+                            <button class="btn-mini" onclick="selectAll('chk-status', true)">Tudo</button>
+                            <button class="btn-mini" onclick="selectAll('chk-status', false)">Limpar</button>
+                        </div>
+                    </div>
+                    <div class="chk-list">
+                        <label class="chk-item"><input type="checkbox" class="chk-status" value="comprou_sim" checked onchange="applyFilters()"> Comprou</label>
+                        <label class="chk-item"><input type="checkbox" class="chk-status" value="comprou_nao" checked onchange="applyFilters()"> Não Comprou</label>
+                        <label class="chk-item"><input type="checkbox" class="chk-status" value="inativo" checked onchange="applyFilters()"> Inativo</label>
+                        <label class="chk-item"><input type="checkbox" class="chk-status" value="prospeccao" checked onchange="applyFilters()"> Prospecção</label>
+                    </div>
                 </div>
 
-                <div class="filter-group">
-                    <label>Setor</label>
-                    <select id="filter-setor" class="filter-select" onchange="applyFilters()">
-                        <option value="">Todos os Setores</option>
-                        {options_setor}
-                    </select>
+                <div class="filter-section">
+                    <div class="filter-header-row">
+                        <span class="filter-title">SETOR:</span>
+                        <div class="btn-group-action">
+                            <button class="btn-mini" onclick="selectAll('chk-setor', true)">Tudo</button>
+                            <button class="btn-mini" onclick="selectAll('chk-setor', false)">Limpar</button>
+                        </div>
+                    </div>
+                    <div class="chk-list">
+                        {checkboxes_setor}
+                    </div>
                 </div>
 
-                <div class="filter-group">
-                    <label>Segmentação</label>
-                    <select id="filter-segmentacao" class="filter-select" onchange="applyFilters()">
-                        <option value="">Todas</option>
-                        {options_seg}
-                    </select>
+                <div class="filter-section">
+                    <div class="filter-header-row">
+                        <span class="filter-title">SEGMENTAÇÃO:</span>
+                        <div class="btn-group-action">
+                            <button class="btn-mini" onclick="selectAll('chk-seg', true)">Tudo</button>
+                            <button class="btn-mini" onclick="selectAll('chk-seg', false)">Limpar</button>
+                        </div>
+                    </div>
+                    <div class="chk-list">
+                        {checkboxes_seg}
+                    </div>
                 </div>
 
-                <div class="filter-group">
-                    <label>Região (DF)</label>
-                    <select id="filter-regiao" class="filter-select" onchange="applyFilters()">
-                        <option value="">Todas</option>
-                        {options_reg}
-                    </select>
+                <div class="filter-section">
+                    <div class="filter-header-row">
+                        <span class="filter-title">REGIÃO DF:</span>
+                        <div class="btn-group-action">
+                            <button class="btn-mini" onclick="selectAll('chk-reg', true)">Tudo</button>
+                            <button class="btn-mini" onclick="selectAll('chk-reg', false)">Limpar</button>
+                        </div>
+                    </div>
+                    <div class="chk-list">
+                        {checkboxes_reg}
+                    </div>
                 </div>
             </div>
 
-            <!-- Barra de Busca -->
             <div id="search-wrapper">
                 <div id="search-container">
                     <input type="text" id="search-input" placeholder="Buscar cliente, CNPJ, código..." onkeyup="handleSearch(event)">
-                    <span id="clear-search" onclick="clearSearch()">&times;</span>
+                    <span id="clear-search" onclick="clearSearch()">×</span>
                 </div>
                 <div id="suggestions"></div>
             </div>
 
-            <!-- Botão e Pop-up Legenda -->
             <div id="legend-toggle" onclick="toggleLegend()">?</div>
             <div id="legend">
                 <div class="legend-row"><span style="color:#28a745;">●</span> Comprou no Mês</div>
@@ -701,7 +818,6 @@ def carregar_dados_e_gerar_html():
 
             <div id="map"></div>
 
-            <!-- Modal para escolha de Origem da Foto -->
             <div id="photo-source-modal">
                 <div class="modal-box">
                     <div class="modal-title">Alterar Foto de Perfil</div>
@@ -776,6 +892,14 @@ def carregar_dados_e_gerar_html():
                     if (markersData.length > 1) {{
                         map.fitBounds(bounds);
                     }}
+
+                    // Listener para alteração do tema do sistema/dispositivo
+                    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {{
+                        var currentThemeSetting = localStorage.getItem('user_theme') || 'device';
+                        if (currentThemeSetting === 'device') {{
+                            applyThemePreference('device');
+                        }}
+                    }});
 
                     checkSession();
                 }}
@@ -949,17 +1073,27 @@ def carregar_dados_e_gerar_html():
                     }}
                 }}
 
+                // Lógica de seleção "Tudo" e "Limpar" para Filtros
+                function selectAll(className, check) {{
+                    var checkboxes = document.querySelectorAll('.' + className);
+                    checkboxes.forEach(function(chk) {{
+                        chk.checked = check;
+                    }});
+                    applyFilters();
+                }}
+
+                // Filtro multi-seleção por checkboxes
                 function applyFilters() {{
-                    var status = document.getElementById('filter-status').value;
-                    var setor = document.getElementById('filter-setor').value;
-                    var seg = document.getElementById('filter-segmentacao').value;
-                    var reg = document.getElementById('filter-regiao').value;
+                    var selectedStatus = Array.from(document.querySelectorAll('.chk-status:checked')).map(c => c.value);
+                    var selectedSetor = Array.from(document.querySelectorAll('.chk-setor:checked')).map(c => c.value);
+                    var selectedSeg = Array.from(document.querySelectorAll('.chk-seg:checked')).map(c => c.value);
+                    var selectedReg = Array.from(document.querySelectorAll('.chk-reg:checked')).map(c => c.value);
 
                     mapMarkers.forEach(function(m) {{
-                        var matchStatus = !status || m.data.status_cat === status;
-                        var matchSetor = !setor || m.data.setor === setor;
-                        var matchSeg = !seg || m.data.segmentacao === seg;
-                        var matchReg = !reg || m.data.regiao === reg;
+                        var matchStatus = selectedStatus.length === 0 || selectedStatus.includes(m.data.status_cat);
+                        var matchSetor = selectedSetor.length === 0 || selectedSetor.includes(m.data.setor);
+                        var matchSeg = selectedSeg.length === 0 || selectedSeg.includes(m.data.segmentacao);
+                        var matchReg = selectedReg.length === 0 || selectedReg.includes(m.data.regiao);
 
                         if (matchStatus && matchSetor && matchSeg && matchReg) {{
                             m.marker.setVisible(true);
@@ -1044,8 +1178,16 @@ def carregar_dados_e_gerar_html():
                         var reader = new FileReader();
                         reader.onload = function(e) {{
                             var imgData = e.target.result;
+                            
+                            // Exibe fotos e esconde a inicial
                             document.getElementById('avatar-btn-img').src = imgData;
+                            document.getElementById('avatar-btn-img').style.display = 'block';
+                            document.getElementById('avatar-btn-initial').style.display = 'none';
+
                             document.getElementById('avatar-menu-img').src = imgData;
+                            document.getElementById('avatar-menu-img').style.display = 'block';
+                            document.getElementById('avatar-menu-initial').style.display = 'none';
+
                             localStorage.setItem('user_avatar_' + loggedUserEmail, imgData);
                         }};
                         reader.readAsDataURL(file);
@@ -1069,24 +1211,55 @@ def carregar_dados_e_gerar_html():
                     var savedAvatar = localStorage.getItem('user_avatar_' + loggedUserEmail);
                     if (savedAvatar) {{
                         document.getElementById('avatar-btn-img').src = savedAvatar;
+                        document.getElementById('avatar-btn-img').style.display = 'block';
+                        document.getElementById('avatar-btn-initial').style.display = 'none';
+
                         document.getElementById('avatar-menu-img').src = savedAvatar;
+                        document.getElementById('avatar-menu-img').style.display = 'block';
+                        document.getElementById('avatar-menu-initial').style.display = 'none';
+                    }} else {{
+                        // Exibe a primeira letra do e-mail em fundo preto se não houver foto
+                        var initialLetter = loggedUserEmail ? loggedUserEmail.charAt(0).toUpperCase() : 'U';
+                        
+                        document.getElementById('avatar-btn-img').style.display = 'none';
+                        document.getElementById('avatar-btn-initial').innerText = initialLetter;
+                        document.getElementById('avatar-btn-initial').style.display = 'block';
+
+                        document.getElementById('avatar-menu-img').style.display = 'none';
+                        document.getElementById('avatar-menu-initial').innerText = initialLetter;
+                        document.getElementById('avatar-menu-initial').style.display = 'block';
                     }}
 
-                    var savedTheme = localStorage.getItem('user_theme') || 'dark';
+                    var savedTheme = localStorage.getItem('user_theme') || 'device';
                     setTheme(savedTheme);
                 }}
 
                 function setTheme(theme) {{
-                    if (theme === 'light') {{
-                        document.body.classList.add('light-theme');
+                    localStorage.setItem('user_theme', theme);
+                    applyThemePreference(theme);
+                }}
+
+                function applyThemePreference(theme) {{
+                    document.getElementById('btn-theme-light').classList.remove('active');
+                    document.getElementById('btn-theme-dark').classList.remove('active');
+                    document.getElementById('btn-theme-device').classList.remove('active');
+
+                    var effectiveTheme = theme;
+                    if (theme === 'device') {{
+                        document.getElementById('btn-theme-device').classList.add('active');
+                        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                        effectiveTheme = prefersDark ? 'dark' : 'light';
+                    }} else if (theme === 'light') {{
                         document.getElementById('btn-theme-light').classList.add('active');
-                        document.getElementById('btn-theme-dark').classList.remove('active');
+                    }} else {{
+                        document.getElementById('btn-theme-dark').classList.add('active');
+                    }}
+
+                    if (effectiveTheme === 'light') {{
+                        document.body.classList.add('light-theme');
                     }} else {{
                         document.body.classList.remove('light-theme');
-                        document.getElementById('btn-theme-dark').classList.add('active');
-                        document.getElementById('btn-theme-light').classList.remove('active');
                     }}
-                    localStorage.setItem('user_theme', theme);
                 }}
             </script>
         </body>
