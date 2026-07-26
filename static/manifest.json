@@ -1,9 +1,16 @@
 {
   "short_name": "Mapa Vendas",
-  "name": "Mapa de Vendas & Prospecção",
+  "name": "Mapa de Vendas",
+  "icons": [
+    {
+      "src": "/static/icon.png",
+      "type": "image/png",
+      "sizes": "192x192 512x512",
+      "purpose": "any maskable"
+    }
+  ],
   "start_url": "/",
   "background_color": "#2c3e50",
   "theme_color": "#2c3e50",
-  "display": "standalone",
-  "orientation": "portrait"
+  "display": "standalone"
 }
