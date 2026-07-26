@@ -161,28 +161,24 @@ def carregar_dados_e_gerar_html():
         if not os.path.exists(pasta_dados):
             return f"<h1 style='font-family:sans-serif; color:#ff3131; padding:20px;'>Erro: A pasta '{pasta_dados}' não foi encontrada no projeto.</h1>"
 
-        # Tenta procurar qualquer arquivo de vendas na pasta
         arquivos = [f for f in os.listdir(pasta_dados) if not f.startswith("~$")]
         
         for nome in arquivos:
             if "clientes_vendas_teste" in nome:
                 caminho_completo = os.path.join(pasta_dados, nome)
                 
-                # Try 1: CSV padrão (vírgula ou ponto e vírgula)
                 try:
                     df = pd.read_csv(caminho_completo, dtype={'Setor': str}, sep=None, engine='python', encoding='utf-8-sig')
                     break
                 except Exception:
                     pass
 
-                # Try 2: CSV com encoding latin1
                 try:
                     df = pd.read_csv(caminho_completo, dtype={'Setor': str}, sep=None, engine='python', encoding='latin1')
                     break
                 except Exception:
                     pass
 
-                # Try 3: XLSX real
                 try:
                     df = pd.read_excel(caminho_completo, engine='openpyxl', dtype={'Setor': str})
                     break
@@ -193,14 +189,11 @@ def carregar_dados_e_gerar_html():
             return f"<h1 style='font-family:sans-serif; color:#ff3131; padding:20px;'>Erro: Não foi possível ler o arquivo de dados na pasta 'dados/'. Certifique-se de que o arquivo 'clientes_vendas_teste' está lá.</h1>"
 
         df = df.fillna('')
-        
-        # Normalizar colunas removendo espaços nas extremidades
         df.columns = [str(c).strip() for c in df.columns]
 
         if 'Setor' in df.columns:
             df['Setor'] = df['Setor'].apply(formatar_setor)
 
-        # Checagem segura das colunas de filtro
         col_setor = 'Setor' if 'Setor' in df.columns else ''
         col_seg = 'Segmentação' if 'Segmentação' in df.columns else ''
         col_reg = 'Região (DF)' if 'Região (DF)' in df.columns else ''
@@ -212,8 +205,11 @@ def carregar_dados_e_gerar_html():
         markers_list = []
         for _, row in df.iterrows():
             try:
-                lat = float(row['Latitude'])
-                lng = float(row['Longitude'])
+                # Tratamento de segurança para conversão de vírgula em ponto na Latitude/Longitude
+                lat_str = str(row['Latitude']).replace(',', '.').strip()
+                lng_str = str(row['Longitude']).replace(',', '.').strip()
+                lat = float(lat_str)
+                lng = float(lng_str)
             except (ValueError, TypeError, KeyError):
                 continue
 
@@ -309,7 +305,7 @@ def carregar_dados_e_gerar_html():
             <meta name="apple-mobile-web-app-title" content="Mapa Vendas">
             
             <title>Mapa de Vendas</title>
-            <script src="https://maps.googleapis.com/maps/api/js?key={GOOGLE_MAPS_API_KEY}"></script>
+            <script src="https://maps.googleapis.com/maps/api/js?key={GOOGLE_MAPS_API_KEY}&v=weekly"></script>
             <style>
                 :root {{
                     --bg-primary: #2c3e50;
@@ -708,6 +704,11 @@ def carregar_dados_e_gerar_html():
 
                 function initMap() {{
                     var centro = {{ lat: -15.7942, lng: -47.8822 }};
+                    
+                    if (markersData.length > 0) {{
+                        centro = {{ lat: markersData[0].lat, lng: markersData[0].lng }};
+                    }}
+
                     map = new google.maps.Map(document.getElementById('map'), {{
                         zoom: 11,
                         center: centro,
@@ -715,8 +716,13 @@ def carregar_dados_e_gerar_html():
                         zoomControl: true
                     }});
 
+                    var bounds = new google.maps.LatLngBounds();
+
                     markersData.forEach(function(item) {{
-                        var svgIcon = {{
+                        var latLng = new google.maps.LatLng(item.lat, item.lng);
+                        bounds.extend(latLng);
+
+                        var pinIcon = {{
                             path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
                             fillColor: item.cor_hex,
                             fillOpacity: 1,
@@ -727,10 +733,10 @@ def carregar_dados_e_gerar_html():
                         }};
 
                         var marker = new google.maps.Marker({{
-                            position: {{ lat: item.lat, lng: item.lng }},
+                            position: latLng,
                             map: map,
                             title: item.nome,
-                            icon: svgIcon
+                            icon: pinIcon
                         }});
 
                         var infowindow = new google.maps.InfoWindow({{ content: item.content }});
@@ -746,6 +752,10 @@ def carregar_dados_e_gerar_html():
                             data: item
                         }});
                     }});
+
+                    if (markersData.length > 1) {{
+                        map.fitBounds(bounds);
+                    }}
 
                     checkSession();
                 }}
