@@ -28,10 +28,8 @@ USERS_DB = {
     }
 }
 
-# Armazenamento temporário dos códigos de recuperação
 RESET_CODES = {}
 
-# Configurações de SMTP para envio de e-mail
 SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.gmail.com")
 SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
 SMTP_USER = os.getenv("SMTP_USER", "")
@@ -68,83 +66,58 @@ def enviar_codigo_email(destinatario: str, codigo: str):
 @app.post("/api/login")
 def login(email: str = Form(...), password: str = Form(...)):
     email_clean = email.strip().lower()
-    
     if email_clean not in USERS_DB:
         raise HTTPException(status_code=401, detail="E-mail não autorizado.")
-    
     user = USERS_DB[email_clean]
-    
     if user["password"] != password:
         raise HTTPException(status_code=401, detail="Senha incorreta.")
-    
-    return {
-        "success": True,
-        "first_login": user["first_login"],
-        "email": email_clean
-    }
+    return {"success": True, "first_login": user["first_login"], "email": email_clean}
 
 @app.post("/api/change-password")
 def change_password(email: str = Form(...), old_password: str = Form(...), new_password: str = Form(...)):
     email_clean = email.strip().lower()
-    
     if email_clean not in USERS_DB:
         raise HTTPException(status_code=404, detail="Usuário não encontrado.")
-    
     user = USERS_DB[email_clean]
-    
     if user["password"] != old_password:
         raise HTTPException(status_code=400, detail="Senha atual não confere.")
-        
     erro_validacao = validar_regras_senha(new_password)
     if erro_validacao:
         raise HTTPException(status_code=400, detail=erro_validacao)
-        
     if new_password in user["history"][-3:]:
         raise HTTPException(status_code=400, detail="A nova senha não pode ser igual a nenhuma das últimas 3 senhas utilizadas.")
-        
     user["password"] = new_password
     user["first_login"] = False
     user["history"].append(new_password)
-    
     return {"success": True, "message": "Senha alterada com sucesso!"}
 
 @app.post("/api/forgot-password")
 def forgot_password(email: str = Form(...)):
     email_clean = email.strip().lower()
-    
     if email_clean not in USERS_DB:
         raise HTTPException(status_code=404, detail="E-mail não autorizado ou não cadastrado.")
-    
     code = str(random.randint(100000, 999999))
     RESET_CODES[email_clean] = code
-    
     enviar_codigo_email(email_clean, code)
-    
     return {"success": True, "message": "Código de verificação enviado para o seu e-mail!"}
 
 @app.post("/api/reset-password")
 def reset_password(email: str = Form(...), code: str = Form(...), new_password: str = Form(...)):
     email_clean = email.strip().lower()
-    
     if email_clean not in USERS_DB:
         raise HTTPException(status_code=404, detail="Usuário não encontrado.")
-        
     if RESET_CODES.get(email_clean) != code.strip():
         raise HTTPException(status_code=400, detail="Código de verificação inválido.")
-        
     erro_validacao = validar_regras_senha(new_password)
     if erro_validacao:
         raise HTTPException(status_code=400, detail=erro_validacao)
-        
     user = USERS_DB[email_clean]
     if new_password in user["history"][-3:]:
         raise HTTPException(status_code=400, detail="A nova senha não pode ser igual a nenhuma das últimas 3 senhas utilizadas.")
-        
     user["password"] = new_password
     user["first_login"] = False
     user["history"].append(new_password)
     del RESET_CODES[email_clean]
-    
     return {"success": True, "message": "Senha redefinida com sucesso!"}
 
 def formatar_setor(valor):
@@ -157,28 +130,23 @@ def carregar_dados_e_gerar_html():
     try:
         df = None
         pasta_dados = "dados"
-        
         if not os.path.exists(pasta_dados):
             return f"<h1 style='font-family:sans-serif; color:#ff3131; padding:20px;'>Erro: A pasta '{pasta_dados}' não foi encontrada no projeto.</h1>"
 
         arquivos = [f for f in os.listdir(pasta_dados) if not f.startswith("~$")]
-        
         for nome in arquivos:
             if "clientes_vendas_teste" in nome:
                 caminho_completo = os.path.join(pasta_dados, nome)
-                
                 try:
                     df = pd.read_csv(caminho_completo, dtype={'Setor': str}, sep=None, engine='python', encoding='utf-8-sig')
                     break
                 except Exception:
                     pass
-
                 try:
                     df = pd.read_csv(caminho_completo, dtype={'Setor': str}, sep=None, engine='python', encoding='latin1')
                     break
                 except Exception:
                     pass
-
                 try:
                     df = pd.read_excel(caminho_completo, engine='openpyxl', dtype={'Setor': str})
                     break
@@ -186,7 +154,7 @@ def carregar_dados_e_gerar_html():
                     pass
 
         if df is None:
-            return f"<h1 style='font-family:sans-serif; color:#ff3131; padding:20px;'>Erro: Não foi possível ler o arquivo de dados na pasta 'dados/'. Certifique-se de que o arquivo 'clientes_vendas_teste' está lá.</h1>"
+            return f"<h1 style='font-family:sans-serif; color:#ff3131; padding:20px;'>Erro: Não foi possível ler o arquivo de dados na pasta 'dados/'.</h1>"
 
         df = df.fillna('')
         df.columns = [str(c).strip() for c in df.columns]
@@ -285,7 +253,6 @@ def carregar_dados_e_gerar_html():
 
         markers_json = json.dumps(markers_list)
 
-        # Gerando checkboxes dinamicos para Setor, Segmentação e Região DF
         checkboxes_setor = "".join([
             f'<label class="chk-item"><input type="checkbox" class="chk-setor" value="{s}" checked onchange="applyFilters()"> {s}</label>'
             for s in setores_unicos
@@ -545,15 +512,15 @@ def carregar_dados_e_gerar_html():
                 #filter-toggle-btn {{ top: 70px; }}
                 #location-btn {{ top: 122px; }}
 
-                /* Botão de Fechar Quadrado Vermelho com X */
+                /* Botão de Fechar Quadrado Vermelho colado no canto da janela */
                 .close-window-btn {{
                     position: absolute;
-                    top: 12px;
-                    right: 12px;
-                    width: 28px;
-                    height: 28px;
+                    top: 0;
+                    right: 0;
+                    width: 32px;
+                    height: 32px;
                     background-color: #ff3131;
-                    border-radius: 6px;
+                    border-radius: 0 15px 0 8px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
@@ -561,7 +528,7 @@ def carregar_dados_e_gerar_html():
                     font-weight: bold;
                     font-size: 16px;
                     cursor: pointer;
-                    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+                    box-shadow: -2px 2px 6px rgba(0,0,0,0.2);
                     z-index: 30;
                     user-select: none;
                 }}
@@ -575,7 +542,7 @@ def carregar_dados_e_gerar_html():
                     left: 15px; 
                     top: 68px; 
                     background: var(--bg-primary); 
-                    padding: 20px 15px 15px 15px; 
+                    padding: 25px 15px 15px 15px; 
                     border-radius: 15px; 
                     color: var(--text-color); 
                     border: 1px solid var(--border-color); 
@@ -610,13 +577,13 @@ def carregar_dados_e_gerar_html():
                 .theme-btn {{ background: var(--bg-secondary); color: var(--text-color); border: 1px solid var(--border-color); padding: 8px 10px; border-radius: 8px; cursor: pointer; font-size: 12px; text-align: left; display: flex; align-items: center; justify-content: space-between; }}
                 .theme-btn.active {{ border-color: #4285F4; font-weight: bold; background: #4285F4; color: white; }}
 
-                /* Menu de Filtros Avançado (Igual ao Vídeo) */
+                /* Menu de Filtros Avançado com Expandir/Recolher (Accordion) */
                 #filter-menu {{ 
                     position: absolute; 
                     left: 15px; 
                     top: 125px; 
                     background: #1e2833; 
-                    padding: 15px; 
+                    padding: 28px 15px 15px 15px; 
                     border-radius: 15px; 
                     color: #ffffff; 
                     border: 1px solid #34495e; 
@@ -628,9 +595,38 @@ def carregar_dados_e_gerar_html():
                     z-index: 25; 
                 }}
                 
-                .filter-section {{ margin-bottom: 18px; }}
-                .filter-header-row {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #34495e; }}
+                .filter-section {{ margin-bottom: 12px; border-bottom: 1px solid #34495e; padding-bottom: 8px; }}
+                .filter-header-row {{ 
+                    display: flex; 
+                    justify-content: space-between; 
+                    align-items: center; 
+                    cursor: pointer;
+                    user-select: none;
+                    padding: 4px 0;
+                }}
+                .filter-title-group {{
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }}
                 .filter-title {{ font-size: 13px; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase; color: #ffffff; }}
+                .arrow-icon {{ font-size: 11px; transition: transform 0.2s ease; display: inline-block; color: #4285F4; }}
+                .arrow-icon.open {{ transform: rotate(180deg); }}
+                
+                .filter-body {{
+                    display: none;
+                    margin-top: 10px;
+                }}
+                .filter-body.open {{
+                    display: block;
+                }}
+
+                .filter-actions-row {{
+                    display: flex;
+                    justify-content: flex-end;
+                    margin-bottom: 8px;
+                }}
+
                 .btn-group-action {{ display: flex; gap: 4px; }}
                 .btn-mini {{ background: #34495e; color: #ecf0f1; border: none; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; cursor: pointer; }}
                 .btn-mini:hover {{ background: #4285F4; color: #ffffff; }}
@@ -745,57 +741,85 @@ def carregar_dados_e_gerar_html():
                 <div class="close-window-btn" onclick="toggleFilterMenu()">✕</div>
                 
                 <div class="filter-section">
-                    <div class="filter-header-row">
-                        <span class="filter-title">STATUS:</span>
-                        <div class="btn-group-action">
-                            <button class="btn-mini" onclick="selectAll('chk-status', true)">Tudo</button>
-                            <button class="btn-mini" onclick="selectAll('chk-status', false)">Limpar</button>
+                    <div class="filter-header-row" onclick="toggleSection('body-status', 'arrow-status')">
+                        <div class="filter-title-group">
+                            <span class="filter-title">STATUS</span>
+                            <span class="arrow-icon" id="arrow-status">▼</span>
                         </div>
                     </div>
-                    <div class="chk-list">
-                        <label class="chk-item"><input type="checkbox" class="chk-status" value="comprou_sim" checked onchange="applyFilters()"> Comprou</label>
-                        <label class="chk-item"><input type="checkbox" class="chk-status" value="comprou_nao" checked onchange="applyFilters()"> Não Comprou</label>
-                        <label class="chk-item"><input type="checkbox" class="chk-status" value="inativo" checked onchange="applyFilters()"> Inativo</label>
-                        <label class="chk-item"><input type="checkbox" class="chk-status" value="prospeccao" checked onchange="applyFilters()"> Prospecção</label>
+                    <div class="filter-body" id="body-status">
+                        <div class="filter-actions-row">
+                            <div class="btn-group-action">
+                                <button class="btn-mini" onclick="selectAll('chk-status', true)">Tudo</button>
+                                <button class="btn-mini" onclick="selectAll('chk-status', false)">Limpar</button>
+                            </div>
+                        </div>
+                        <div class="chk-list">
+                            <label class="chk-item"><input type="checkbox" class="chk-status" value="comprou_sim" checked onchange="applyFilters()"> Comprou</label>
+                            <label class="chk-item"><input type="checkbox" class="chk-status" value="comprou_nao" checked onchange="applyFilters()"> Não Comprou</label>
+                            <label class="chk-item"><input type="checkbox" class="chk-status" value="inativo" checked onchange="applyFilters()"> Inativo</label>
+                            <label class="chk-item"><input type="checkbox" class="chk-status" value="prospeccao" checked onchange="applyFilters()"> Prospecção</label>
+                        </div>
                     </div>
                 </div>
 
                 <div class="filter-section">
-                    <div class="filter-header-row">
-                        <span class="filter-title">SETOR:</span>
-                        <div class="btn-group-action">
-                            <button class="btn-mini" onclick="selectAll('chk-setor', true)">Tudo</button>
-                            <button class="btn-mini" onclick="selectAll('chk-setor', false)">Limpar</button>
+                    <div class="filter-header-row" onclick="toggleSection('body-setor', 'arrow-setor')">
+                        <div class="filter-title-group">
+                            <span class="filter-title">SETOR</span>
+                            <span class="arrow-icon" id="arrow-setor">▼</span>
                         </div>
                     </div>
-                    <div class="chk-list">
-                        {checkboxes_setor}
+                    <div class="filter-body" id="body-setor">
+                        <div class="filter-actions-row">
+                            <div class="btn-group-action">
+                                <button class="btn-mini" onclick="selectAll('chk-setor', true)">Tudo</button>
+                                <button class="btn-mini" onclick="selectAll('chk-setor', false)">Limpar</button>
+                            </div>
+                        </div>
+                        <div class="chk-list">
+                            {checkboxes_setor}
+                        </div>
                     </div>
                 </div>
 
                 <div class="filter-section">
-                    <div class="filter-header-row">
-                        <span class="filter-title">SEGMENTAÇÃO:</span>
-                        <div class="btn-group-action">
-                            <button class="btn-mini" onclick="selectAll('chk-seg', true)">Tudo</button>
-                            <button class="btn-mini" onclick="selectAll('chk-seg', false)">Limpar</button>
+                    <div class="filter-header-row" onclick="toggleSection('body-seg', 'arrow-seg')">
+                        <div class="filter-title-group">
+                            <span class="filter-title">SEGMENTAÇÃO</span>
+                            <span class="arrow-icon" id="arrow-seg">▼</span>
                         </div>
                     </div>
-                    <div class="chk-list">
-                        {checkboxes_seg}
+                    <div class="filter-body" id="body-seg">
+                        <div class="filter-actions-row">
+                            <div class="btn-group-action">
+                                <button class="btn-mini" onclick="selectAll('chk-seg', true)">Tudo</button>
+                                <button class="btn-mini" onclick="selectAll('chk-seg', false)">Limpar</button>
+                            </div>
+                        </div>
+                        <div class="chk-list">
+                            {checkboxes_seg}
+                        </div>
                     </div>
                 </div>
 
                 <div class="filter-section">
-                    <div class="filter-header-row">
-                        <span class="filter-title">REGIÃO DF:</span>
-                        <div class="btn-group-action">
-                            <button class="btn-mini" onclick="selectAll('chk-reg', true)">Tudo</button>
-                            <button class="btn-mini" onclick="selectAll('chk-reg', false)">Limpar</button>
+                    <div class="filter-header-row" onclick="toggleSection('body-reg', 'arrow-reg')">
+                        <div class="filter-title-group">
+                            <span class="filter-title">REGIÃO DF</span>
+                            <span class="arrow-icon" id="arrow-reg">▼</span>
                         </div>
                     </div>
-                    <div class="chk-list">
-                        {checkboxes_reg}
+                    <div class="filter-body" id="body-reg">
+                        <div class="filter-actions-row">
+                            <div class="btn-group-action">
+                                <button class="btn-mini" onclick="selectAll('chk-reg', true)">Tudo</button>
+                                <button class="btn-mini" onclick="selectAll('chk-reg', false)">Limpar</button>
+                            </div>
+                        </div>
+                        <div class="chk-list">
+                            {checkboxes_reg}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -893,7 +917,6 @@ def carregar_dados_e_gerar_html():
                         map.fitBounds(bounds);
                     }}
 
-                    // Listener para alteração do tema do sistema/dispositivo
                     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {{
                         var currentThemeSetting = localStorage.getItem('user_theme') || 'device';
                         if (currentThemeSetting === 'device') {{
@@ -905,6 +928,19 @@ def carregar_dados_e_gerar_html():
                 }}
 
                 window.onload = initMap;
+
+                function toggleSection(bodyId, arrowId) {{
+                    var body = document.getElementById(bodyId);
+                    var arrow = document.getElementById(arrowId);
+                    
+                    if (body.classList.contains('open')) {{
+                        body.classList.remove('open');
+                        arrow.classList.remove('open');
+                    }} else {{
+                        body.classList.add('open');
+                        arrow.classList.add('open');
+                    }}
+                }}
 
                 function getUserLocation() {{
                     if (navigator.geolocation) {{
@@ -937,7 +973,7 @@ def carregar_dados_e_gerar_html():
                                 map.setZoom(15);
                             }},
                             function() {{
-                                alert("Não foi possível obter a sua localização. Verifique as permissões do seu navegador/dispositivo.");
+                                alert("Não foi possível obter a sua localização.");
                             }}
                         );
                     }} else {{
@@ -1073,7 +1109,6 @@ def carregar_dados_e_gerar_html():
                     }}
                 }}
 
-                // Lógica de seleção "Tudo" e "Limpar" para Filtros
                 function selectAll(className, check) {{
                     var checkboxes = document.querySelectorAll('.' + className);
                     checkboxes.forEach(function(chk) {{
@@ -1082,7 +1117,6 @@ def carregar_dados_e_gerar_html():
                     applyFilters();
                 }}
 
-                // Filtro multi-seleção por checkboxes
                 function applyFilters() {{
                     var selectedStatus = Array.from(document.querySelectorAll('.chk-status:checked')).map(c => c.value);
                     var selectedSetor = Array.from(document.querySelectorAll('.chk-setor:checked')).map(c => c.value);
@@ -1179,7 +1213,6 @@ def carregar_dados_e_gerar_html():
                         reader.onload = function(e) {{
                             var imgData = e.target.result;
                             
-                            // Exibe fotos e esconde a inicial
                             document.getElementById('avatar-btn-img').src = imgData;
                             document.getElementById('avatar-btn-img').style.display = 'block';
                             document.getElementById('avatar-btn-initial').style.display = 'none';
@@ -1218,7 +1251,6 @@ def carregar_dados_e_gerar_html():
                         document.getElementById('avatar-menu-img').style.display = 'block';
                         document.getElementById('avatar-menu-initial').style.display = 'none';
                     }} else {{
-                        // Exibe a primeira letra do e-mail em fundo preto se não houver foto
                         var initialLetter = loggedUserEmail ? loggedUserEmail.charAt(0).toUpperCase() : 'U';
                         
                         document.getElementById('avatar-btn-img').style.display = 'none';
