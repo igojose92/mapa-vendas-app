@@ -205,7 +205,6 @@ def carregar_dados_e_gerar_html():
         markers_list = []
         for _, row in df.iterrows():
             try:
-                # Tratamento de segurança para conversão de vírgula em ponto na Latitude/Longitude
                 lat_str = str(row['Latitude']).replace(',', '.').strip()
                 lng_str = str(row['Longitude']).replace(',', '.').strip()
                 lat = float(lat_str)
@@ -514,6 +513,7 @@ def carregar_dados_e_gerar_html():
                 #profile-btn img {{ width: 100%; height: 100%; object-fit: cover; }}
                 
                 #filter-toggle-btn {{ position: absolute; left: 15px; top: 70px; z-index: 20; width: 42px; height: 42px; border-radius: 50%; background: var(--bg-primary); color: var(--text-color); display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid var(--border-color); box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 18px; }}
+                #location-btn {{ position: absolute; left: 15px; top: 122px; z-index: 20; width: 42px; height: 42px; border-radius: 50%; background: var(--bg-primary); color: var(--text-color); display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid var(--border-color); box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 20px; }}
 
                 #profile-menu {{ position: absolute; left: 15px; top: 68px; background: var(--bg-primary); padding: 15px; border-radius: 15px; color: var(--text-color); border: 1px solid var(--border-color); display: none; width: 240px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 25; }}
                 .profile-header {{ display: flex; flex-direction: column; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; }}
@@ -601,7 +601,9 @@ def carregar_dados_e_gerar_html():
                 <img id="avatar-btn-img" src="https://via.placeholder.com/150/34495e/ffffff?text=User" alt="Perfil">
             </div>
 
-            <div id="filter-toggle-btn" onclick="toggleFilterMenu()">⚙️</div>
+            <!-- Botão de Filtro e Botão da Mira (Geolocalização) -->
+            <div id="filter-toggle-btn" title="Filtros" onclick="toggleFilterMenu()">🎨</div>
+            <div id="location-btn" title="Minha Localização Atual" onclick="getUserLocation()">🎯</div>
 
             <!-- Menu do Perfil -->
             <div id="profile-menu">
@@ -701,6 +703,7 @@ def carregar_dados_e_gerar_html():
                 var mapMarkers = [];
                 var currentInfoWindow = null;
                 var loggedUserEmail = "";
+                var userLocationMarker = null;
 
                 function initMap() {{
                     var centro = {{ lat: -15.7942, lng: -47.8822 }};
@@ -761,6 +764,45 @@ def carregar_dados_e_gerar_html():
                 }}
 
                 window.onload = initMap;
+
+                function getUserLocation() {{
+                    if (navigator.geolocation) {{
+                        navigator.geolocation.getCurrentPosition(
+                            function(position) {{
+                                var pos = {{
+                                    lat: position.coords.latitude,
+                                    lng: position.coords.longitude
+                                }};
+
+                                if (userLocationMarker) {{
+                                    userLocationMarker.setPosition(pos);
+                                }} else {{
+                                    userLocationMarker = new google.maps.Marker({{
+                                        position: pos,
+                                        map: map,
+                                        title: "Sua Localização",
+                                        icon: {{
+                                            path: google.maps.SymbolPath.CIRCLE,
+                                            scale: 8,
+                                            fillColor: "#4285F4",
+                                            fillOpacity: 1,
+                                            strokeColor: "#ffffff",
+                                            strokeWeight: 3
+                                        }}
+                                    }});
+                                }}
+
+                                map.setCenter(pos);
+                                map.setZoom(15);
+                            }},
+                            function() {{
+                                alert("Não foi possível obter a sua localização. Verifique as permissões do seu navegador/dispositivo.");
+                            }}
+                        );
+                    }} else {{
+                        alert("Seu navegador não suporta geolocalização.");
+                    }}
+                }}
 
                 function checkSession() {{
                     var savedEmail = localStorage.getItem('mapa_user_email');
