@@ -282,6 +282,14 @@ def carregar_dados_e_gerar_html():
             .theme-btn {{ background: var(--bg-secondary); color: var(--text-color); border: 1px solid var(--border-color); padding: 8px 10px; border-radius: 8px; cursor: pointer; font-size: 12px; text-align: left; display: flex; align-items: center; justify-content: space-between; }}
             .theme-btn.active {{ border-color: #4285F4; font-weight: bold; background: #4285F4; color: white; }}
 
+            /* Modal de Seleção de Origem da Foto (Galeria ou Câmera) */
+            #photo-source-modal {{ display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 100; align-items: center; justify-content: center; }}
+            .modal-box {{ background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; width: 80%; max-width: 280px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); color: var(--text-color); }}
+            .modal-title {{ font-size: 16px; font-weight: bold; margin-bottom: 15px; }}
+            .modal-btn {{ display: block; width: 100%; padding: 12px 0; margin-bottom: 10px; background: var(--bg-secondary); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }}
+            .modal-btn:hover {{ background: #4285F4; color: white; }}
+            .modal-cancel {{ background: transparent; border: none; color: #ff3131; font-size: 13px; font-weight: bold; margin-top: 5px; cursor: pointer; width: 100%; }}
+
             /* Menu de Filtros */
             #filter-menu {{ position: absolute; left: 15px; top: 120px; background: var(--bg-primary); padding: 12px; border-radius: 15px; color: var(--text-color); border: 1px solid var(--border-color); display: none; width: 230px; max-height: 60vh; overflow-y: auto; z-index: 21; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }}
             .filter-group {{ margin-bottom: 6px; }}
@@ -311,10 +319,13 @@ def carregar_dados_e_gerar_html():
         <!-- MENU DE PERFIL E TEMAS -->
         <div id="profile-menu">
             <div class="profile-header">
-                <div class="profile-img-wrapper" onclick="triggerPhotoUpload()">
+                <div class="profile-img-wrapper" onclick="openPhotoSourceModal()">
                     <img id="user-avatar-menu" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="Foto do Perfil">
                 </div>
-                <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none;" onchange="handlePhotoSelect(event)">
+                <!-- Inputs de imagem (Galeria e Câmera) -->
+                <input type="file" id="gallery-input" accept="image/*" style="display:none;" onchange="handlePhotoSelect(event)">
+                <input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none;" onchange="handlePhotoSelect(event)">
+                
                 <div class="profile-name" onclick="editUserName()">
                     <span id="user-name-display">Usuário</span> ✏️
                 </div>
@@ -326,6 +337,16 @@ def carregar_dados_e_gerar_html():
                     <button class="theme-btn" id="theme-light-btn" onclick="setTheme('light')">☀️ Tema Claro</button>
                     <button class="theme-btn" id="theme-system-btn" onclick="setTheme('system')">📱 Usar Tema do Sistema</button>
                 </div>
+            </div>
+        </div>
+
+        <!-- MODAL PARA SELEÇÃO DE ORIGEM DA FOTO -->
+        <div id="photo-source-modal">
+            <div class="modal-box">
+                <div class="modal-title">Alterar Foto de Perfil</div>
+                <button class="modal-btn" onclick="selectPhotoSource('gallery')">🖼️ Escolher da Galeria</button>
+                <button class="modal-btn" onclick="selectPhotoSource('camera')">📷 Tirar Foto (Câmera)</button>
+                <button class="modal-cancel" onclick="closePhotoSourceModal()">Cancelar</button>
             </div>
         </div>
 
@@ -473,9 +494,22 @@ def carregar_dados_e_gerar_html():
                 applyFilters();
             }}
 
-            /* GERENCIAMENTO DE PERFIL E FOTO */
-            function triggerPhotoUpload() {{
-                document.getElementById('photo-input').click();
+            /* GERENCIAMENTO DE SELEÇÃO DE FOTO (GALERIA OU CÂMERA) */
+            function openPhotoSourceModal() {{
+                document.getElementById('photo-source-modal').style.display = 'flex';
+            }}
+
+            function closePhotoSourceModal() {{
+                document.getElementById('photo-source-modal').style.display = 'none';
+            }}
+
+            function selectPhotoSource(source) {{
+                closePhotoSourceModal();
+                if (source === 'gallery') {{
+                    document.getElementById('gallery-input').click();
+                }} else if (source === 'camera') {{
+                    document.getElementById('camera-input').click();
+                }}
             }}
 
             function handlePhotoSelect(event) {{
