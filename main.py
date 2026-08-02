@@ -84,8 +84,8 @@ def carregar_dados_e_gerar_html():
                 </div>
             </div>
 
-            <!-- CAMPO DE BUSCA CENTRALIZADO -->
-            <div class="flex-1 max-w-md mx-6">
+            <!-- CAMPO DE BUSCA CENTRALIZADO E MENOR -->
+            <div class="flex-1 max-w-xs mx-6">
                 <div class="relative">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
                         <i class="fa-solid fa-search text-xs"></i>
@@ -144,6 +144,7 @@ def carregar_dados_e_gerar_html():
                 
                 <!-- Filtros Gerais -->
                 <div class="p-4 border-b border-slate-200 bg-slate-50 space-y-3">
+                    <!-- Filtros Rápidos (Cores normais, sem neon) -->
                     <div class="grid grid-cols-2 gap-2 text-xs">
                         <div>
                             <label class="block font-semibold text-slate-600 mb-1">Status da Venda</label>
@@ -165,7 +166,7 @@ def carregar_dados_e_gerar_html():
                     </div>
                 </div>
 
-                <!-- Resumo dos Indicadores -->
+                <!-- Resumo dos Indicadores (Cores sem neon) -->
                 <div class="grid grid-cols-2 gap-2 p-3 bg-slate-100 border-b border-slate-200 text-xs">
                     <div class="bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm flex items-center justify-between">
                         <div>
@@ -179,6 +180,7 @@ def carregar_dados_e_gerar_html():
                     <div class="bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm flex items-center justify-between">
                         <div>
                             <p class="text-slate-500 font-medium">Vendas Realizadas</p>
+                            <!-- Cores normais (verde normal, sem neon) -->
                             <p id="kpi-total-vendas" class="text-base font-bold text-emerald-600">R$ 0</p>
                         </div>
                         <div class="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
@@ -208,6 +210,7 @@ def carregar_dados_e_gerar_html():
             let markersLayer = L.layerGroup();
             let loggedUserEmail = "igojose95@gmail.com";
 
+            // Inicialização da Aplicação
             document.addEventListener('DOMContentLoaded', function() {{
                 initMap();
                 loadUserProfile();
@@ -245,6 +248,7 @@ def carregar_dados_e_gerar_html():
 
                 clientes.forEach(c => {{
                     const isRealizada = c.status_venda && c.status_venda.toLowerCase() === 'realizada';
+                    # Cores normais (verde normal / vermelho normal, sem neon)
                     const statusBgClass = isRealizada ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700';
                     const statusDotClass = isRealizada ? 'bg-emerald-500' : 'bg-rose-500';
 
@@ -276,6 +280,8 @@ def carregar_dados_e_gerar_html():
                 clientes.forEach(c => {{
                     if (c.latitude && c.longitude) {{
                         const isRealizada = c.status_venda && c.status_venda.toLowerCase() === 'realizada';
+                        
+                        # Cores normais para os pinos do mapa (verde normal / vermelho normal, sem neon)
                         const pinColor = isRealizada ? '#10b981' : '#f43f5e'; 
                         
                         const customIcon = L.divIcon({{
@@ -343,6 +349,7 @@ def carregar_dados_e_gerar_html():
                 document.getElementById('kpi-total-vendas').innerText = 'R$ ' + somaVendas.toLocaleString('pt-BR', {{ minimumFractionDigits: 2 }});
             }}
 
+            # Funções de Perfil e Persistência de Dados
             function toggleUserMenu() {{
                 const dropdown = document.getElementById('user-dropdown');
                 dropdown.classList.toggle('hidden');
