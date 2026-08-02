@@ -2,7 +2,6 @@
 from fastapi import FastAPI, Response
 from fastapi.responses import HTMLResponse
 import pandas as pd
-import json
 import os
 
 app = FastAPI()
@@ -26,6 +25,9 @@ def carregar_dados_e_gerar_html():
                 df = pd.read_csv(csv_path, encoding='latin1')
             except Exception:
                 pass
+
+    # Converte os dados do DataFrame para formato JSON seguro para o Front-end
+    dados_json = df.to_json(orient='records', force_ascii=False)
 
     html_content = f"""
     <!DOCTYPE html>
@@ -84,17 +86,6 @@ def carregar_dados_e_gerar_html():
                 </div>
             </div>
 
-            <!-- CAMPO DE BUSCA CENTRALIZADO E MENOR -->
-            <div class="flex-1 max-w-xs mx-6">
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
-                        <i class="fa-solid fa-search text-xs"></i>
-                    </span>
-                    <input type="text" id="search-input" oninput="filtrarDados()" placeholder="Buscar cliente, bairro, cidade..." 
-                        class="w-full pl-9 pr-4 py-1.5 bg-slate-800 border border-slate-700 rounded-full text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-inner transition">
-                </div>
-            </div>
-
             <!-- PERFIL DO USUÁRIO E MENU -->
             <div class="flex items-center space-x-4">
                 <div class="relative">
@@ -142,8 +133,16 @@ def carregar_dados_e_gerar_html():
             <!-- PAINEL LATERAL DE FILTROS E LISTA -->
             <aside class="w-96 bg-white border-r border-slate-200 flex flex-col shrink-0 z-20 shadow-lg">
                 
-                <!-- Filtros Gerais -->
+                <!-- Barra de Pesquisa e Filtros Gerais -->
                 <div class="p-4 border-b border-slate-200 bg-slate-50 space-y-3">
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-search"></i>
+                        </span>
+                        <input type="text" id="search-input" oninput="filtrarDados()" placeholder="Buscar cliente, bairro, cidade..." 
+                            class="w-full pl-10 pr-4 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition">
+                    </div>
+
                     <!-- Filtros Rápidos (Cores normais, sem neon) -->
                     <div class="grid grid-cols-2 gap-2 text-xs">
                         <div>
@@ -203,14 +202,14 @@ def carregar_dados_e_gerar_html():
 
         <!-- Script Principal com Dados e Lógica do App -->
         <script>
-            // Dados injetados pelo Python de forma segura
+            // Dados injetados pelo Python
             const dadosClientes = {json.dumps(df.to_dict(orient='records'), ensure_ascii=False)};
 
             let map;
             let markersLayer = L.layerGroup();
             let loggedUserEmail = "igojose95@gmail.com";
 
-            // Inicialização da Aplicação
+            // Inicialização daAplicação
             document.addEventListener('DOMContentLoaded', function() {{
                 initMap();
                 loadUserProfile();
@@ -219,6 +218,7 @@ def carregar_dados_e_gerar_html():
             }});
 
             function initMap() {{
+                // Coordenadas iniciais centradas (exemplo padrão Brasil)
                 map = L.map('map', {{ zoomControl: false }}).setView([-15.7885, -47.8929], 4);
 
                 L.tileLayer('https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
@@ -226,6 +226,7 @@ def carregar_dados_e_gerar_html():
                     attribution: '&copy; OpenStreetMap contributors'
                 }}).addTo(map);
 
+                // Adiciona controle de zoom no canto superior direito
                 L.control.zoom({{ position: 'topright' }}).addTo(map);
                 markersLayer.addTo(map);
 
@@ -248,7 +249,7 @@ def carregar_dados_e_gerar_html():
 
                 clientes.forEach(c => {{
                     const isRealizada = c.status_venda && c.status_venda.toLowerCase() === 'realizada';
-                    # Cores normais (verde normal / vermelho normal, sem neon)
+                    // Cores normais (verde normal / vermelho normal, sem neon)
                     const statusBgClass = isRealizada ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700';
                     const statusDotClass = isRealizada ? 'bg-emerald-500' : 'bg-rose-500';
 
@@ -281,7 +282,7 @@ def carregar_dados_e_gerar_html():
                     if (c.latitude && c.longitude) {{
                         const isRealizada = c.status_venda && c.status_venda.toLowerCase() === 'realizada';
                         
-                        # Cores normais para os pinos do mapa (verde normal / vermelho normal, sem neon)
+                        // Cores normais para os pinos do mapa (verde normal / vermelho normal, sem neon)
                         const pinColor = isRealizada ? '#10b981' : '#f43f5e'; 
                         
                         const customIcon = L.divIcon({{
@@ -349,7 +350,7 @@ def carregar_dados_e_gerar_html():
                 document.getElementById('kpi-total-vendas').innerText = 'R$ ' + somaVendas.toLocaleString('pt-BR', {{ minimumFractionDigits: 2 }});
             }}
 
-            # Funções de Perfil e Persistência de Dados
+            // Funções de Perfil e Persistência de Dados
             function toggleUserMenu() {{
                 const dropdown = document.getElementById('user-dropdown');
                 dropdown.classList.toggle('hidden');
